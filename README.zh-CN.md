@@ -19,7 +19,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/版本-1.0.0-blue.svg" alt="版本">
-  <img src="https://img.shields.io/badge/许可证-MIT-green.svg" alt="许可证">
+  <img src="https://img.shields.io/badge/许可证-MIT%20with%20Commons%20Clause-green.svg" alt="许可证">
   <img src="https://img.shields.io/badge/平台-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg" alt="平台">
   <img src="https://img.shields.io/badge/electron-30.0.1-9feaf9.svg" alt="Electron">
   <img src="https://img.shields.io/badge/react-18.2.0-61dafb.svg" alt="React">
@@ -89,30 +89,11 @@ Dev Janitor（开发清道夫）是一款功能强大的桌面应用程序，旨
 
 ## 截图
 
-<!-- 在此添加截图 -->
 <p align="center">
-  <em>截图即将推出...</em>
-</p>
-
-<!--
-<p align="center">
-  <img src="docs/screenshots/tools-view.png" alt="工具视图" width="800">
+  <img src="docs/screenshots/demo.gif" alt="Dev Janitor 演示" width="800">
   <br>
-  <em>工具检测视图</em>
+  <em>Dev Janitor 功能演示</em>
 </p>
-
-<p align="center">
-  <img src="docs/screenshots/packages-view.png" alt="包视图" width="800">
-  <br>
-  <em>包管理视图</em>
-</p>
-
-<p align="center">
-  <img src="docs/screenshots/services-view.png" alt="服务视图" width="800">
-  <br>
-  <em>服务监控视图</em>
-</p>
--->
 
 ## 安装
 
@@ -338,7 +319,15 @@ npm run test:watch
 
 ## 许可证
 
-本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件。
+本项目采用 MIT 许可证 + Commons Clause - 详见 [LICENSE](LICENSE) 文件。
+
+**注意**：这是一个源码可用许可证。你可以自由使用、修改和分发本软件用于个人和非商业用途。未经明确许可，不得进行商业使用（销售软件或基于软件提供收费服务）。
+
+## 联系我们
+
+商业授权咨询或其他问题，请联系：
+- 邮箱：cocojojo5213@gmail.com
+- 邮箱：cocojojo5213@icloud.com
 
 ## 致谢
 

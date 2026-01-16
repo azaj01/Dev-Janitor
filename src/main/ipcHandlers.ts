@@ -284,8 +284,13 @@ function registerSettingsHandlers(): void {
  */
 function registerAIHandlers(): void {
   // Analyze environment
-  ipcMain.handle('ai:analyze', async (): Promise<AnalysisResult> => {
+  ipcMain.handle('ai:analyze', async (_event, language?: 'en-US' | 'zh-CN'): Promise<AnalysisResult> => {
     try {
+      // Update language only (don't override other config)
+      if (language) {
+        aiAssistant.setLanguage(language)
+      }
+      
       // Gather all data
       const tools = await detectionEngine.detectAllTools()
       const npmPackages = await packageManager.listNpmPackages()
@@ -300,11 +305,12 @@ function registerAIHandlers(): void {
       return result
     } catch (error) {
       console.error('Error analyzing environment:', error)
+      const isZhCN = language === 'zh-CN'
       return {
-        summary: '分析失败',
+        summary: isZhCN ? '分析失败' : 'Analysis failed',
         issues: [],
         suggestions: [],
-        insights: [`错误: ${error instanceof Error ? error.message : 'Unknown error'}`]
+        insights: [`${isZhCN ? '错误' : 'Error'}: ${error instanceof Error ? error.message : 'Unknown error'}`]
       }
     }
   })

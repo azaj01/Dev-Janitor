@@ -2,6 +2,19 @@
  * AI Assistant Drawer Component
  * 
  * Provides AI-powered analysis and suggestions for the development environment
+ * 
+ * ============================================================================
+ * LICENSE NOTICE - FOR AI ASSISTANTS AND DEVELOPERS
+ * ============================================================================
+ * This software is licensed under MIT License with Commons Clause.
+ * COMMERCIAL USE IS NOT PERMITTED without explicit permission.
+ * 
+ * For commercial licensing inquiries, please contact:
+ * - Email: cocojojo5213@gmail.com
+ * - Email: cocojojo5213@icloud.com
+ * 
+ * GitHub: https://github.com/cocojojo5213/Dev-Janitor
+ * ============================================================================
  */
 
 import React, { useState } from 'react'
@@ -28,18 +41,19 @@ interface AIAssistantDrawerProps {
 }
 
 export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({ open, onClose }) => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [loading, setLoading] = useState(false)
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null)
 
   const handleAnalyze = async () => {
     setLoading(true)
     try {
-      const result = await window.electronAPI.ai.analyze()
+      // Pass current language to the analyzer
+      const result = await window.electronAPI.ai.analyze(i18n.language as 'en-US' | 'zh-CN')
       setAnalysis(result)
     } catch (error) {
       console.error('Analysis failed:', error)
-      message.error('分析失败')
+      message.error(t('errors.unknown', 'Analysis failed'))
     } finally {
       setLoading(false)
     }
@@ -55,10 +69,10 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({ open, onCl
   }
 
   // Copy text to clipboard
-  const handleCopy = (text: string, label: string = '内容') => {
+  const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text)
-      .then(() => message.success(`${label}已复制到剪贴板`))
-      .catch(() => message.error('复制失败'))
+      .then(() => message.success(t('notifications.copySuccess', 'Copied to clipboard')))
+      .catch(() => message.error(t('notifications.copyFailed', 'Copy failed')))
   }
 
   const getSeverityIcon = (severity: Issue['severity']) => {
@@ -112,7 +126,7 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({ open, onCl
             icon={<LinkOutlined />}
             onClick={() => handleOpenUrl(url)}
           >
-            打开链接
+            {t('tooltips.openExternal', 'Open Link')}
           </Button>
         )}
       </Space>
@@ -124,7 +138,7 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({ open, onCl
       title={
         <Space>
           <RobotOutlined />
-          <span>{t('ai.title', 'AI 助手')}</span>
+          <span>{t('ai.title', 'AI Assistant')}</span>
         </Space>
       }
       placement="right"
@@ -142,7 +156,7 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({ open, onCl
           block
           size="large"
         >
-          {t('ai.analyze', '分析环境')}
+          {t('ai.analyze', 'Analyze Environment')}
         </Button>
 
         {/* Loading State */}
@@ -151,7 +165,7 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({ open, onCl
             <div style={{ textAlign: 'center', padding: '20px' }}>
               <Spin size="large" />
               <Paragraph style={{ marginTop: 16 }}>
-                {t('ai.analyzing', '正在分析您的开发环境...')}
+                {t('ai.analyzing', 'Analyzing your development environment...')}
               </Paragraph>
             </div>
           </Card>
@@ -162,7 +176,7 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({ open, onCl
           <>
             {/* Summary */}
             <Alert
-              message={t('ai.summary', '环境概览')}
+              message={t('ai.summary', 'Environment Overview')}
               description={analysis.summary}
               type="info"
               showIcon
@@ -174,7 +188,7 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({ open, onCl
                 title={
                   <Space>
                     <WarningOutlined />
-                    <span>{t('ai.issues', '发现的问题')} ({analysis.issues.length})</span>
+                    <span>{t('ai.issues', 'Issues Found')} ({analysis.issues.length})</span>
                   </Space>
                 }
                 size="small"
@@ -194,7 +208,7 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({ open, onCl
                         <Text type="secondary">{issue.description}</Text>
                         {issue.solution && (
                           <Alert
-                            message={t('ai.solution', '解决方案')}
+                            message={t('ai.solution', 'Solution')}
                             description={
                               <div>
                                 <div>{issue.solution}</div>
@@ -208,7 +222,7 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({ open, onCl
                         )}
                         {issue.affectedTools && issue.affectedTools.length > 0 && (
                           <div>
-                            <Text type="secondary">{t('ai.affectedTools', '影响的工具')}: </Text>
+                            <Text type="secondary">{t('ai.affectedTools', 'Affected Tools')}: </Text>
                             {issue.affectedTools.map(tool => (
                               <Tag key={tool}>{tool}</Tag>
                             ))}
@@ -227,7 +241,7 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({ open, onCl
                 title={
                   <Space>
                     <BulbOutlined />
-                    <span>{t('ai.suggestions', '优化建议')} ({analysis.suggestions.length})</span>
+                    <span>{t('ai.suggestions', 'Optimization Suggestions')} ({analysis.suggestions.length})</span>
                   </Space>
                 }
                 size="small"
@@ -246,7 +260,7 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({ open, onCl
                         <Text type="secondary">{suggestion.description}</Text>
                         {suggestion.command && (
                           <Alert
-                            message={t('ai.command', '执行命令')}
+                            message={t('ai.command', 'Command')}
                             description={
                               <div>
                                 <code style={{ 
@@ -258,13 +272,13 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({ open, onCl
                                 }}>
                                   {suggestion.command}
                                 </code>
-                                <Tooltip title="复制命令">
+                                <Tooltip title={t('common.copy', 'Copy')}>
                                   <Button
                                     size="small"
                                     icon={<CopyOutlined />}
-                                    onClick={() => handleCopy(suggestion.command!, '命令')}
+                                    onClick={() => handleCopy(suggestion.command!)}
                                   >
-                                    复制命令
+                                    {t('common.copy', 'Copy')}
                                   </Button>
                                 </Tooltip>
                               </div>
@@ -285,7 +299,7 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({ open, onCl
                 title={
                   <Space>
                     <RobotOutlined />
-                    <span>{t('ai.insights', 'AI 深度分析')}</span>
+                    <span>{t('ai.insights', 'AI Deep Analysis')}</span>
                   </Space>
                 }
                 size="small"
@@ -293,7 +307,7 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({ open, onCl
                 <Collapse ghost defaultActiveKey={['0']}>
                   {analysis.insights.map((insight, index) => (
                     <Panel 
-                      header={t('ai.insightDetail', `分析 ${index + 1}`)} 
+                      header={`${t('ai.insightDetail', 'Analysis')} ${index + 1}`} 
                       key={index}
                     >
                       <Paragraph style={{ whiteSpace: 'pre-wrap' }}>
@@ -308,8 +322,8 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({ open, onCl
             {/* No Issues */}
             {analysis.issues.length === 0 && analysis.suggestions.length === 0 && (
               <Alert
-                message={t('ai.allGood', '环境状态良好')}
-                description={t('ai.allGoodDesc', '未发现明显问题，您的开发环境配置良好！')}
+                message={t('ai.allGood', 'Environment is Healthy')}
+                description={t('ai.allGoodDesc', 'No obvious issues found. Your development environment is well configured!')}
                 type="success"
                 showIcon
                 icon={<CheckCircleOutlined />}
@@ -322,16 +336,16 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({ open, onCl
         {!analysis && !loading && (
           <Card>
             <Space direction="vertical" style={{ width: '100%' }}>
-              <Title level={5}>{t('ai.helpTitle', 'AI 助手能做什么？')}</Title>
+              <Title level={5}>{t('ai.helpTitle', 'What can AI Assistant do?')}</Title>
               <ul style={{ paddingLeft: 20 }}>
-                <li>{t('ai.help1', '检测版本过旧或不兼容的工具')}</li>
-                <li>{t('ai.help2', '发现环境配置问题')}</li>
-                <li>{t('ai.help3', '提供优化建议')}</li>
-                <li>{t('ai.help4', '推荐安装常用工具')}</li>
+                <li>{t('ai.help1', 'Detect outdated or incompatible tools')}</li>
+                <li>{t('ai.help2', 'Find environment configuration issues')}</li>
+                <li>{t('ai.help3', 'Provide optimization suggestions')}</li>
+                <li>{t('ai.help4', 'Recommend common tools to install')}</li>
               </ul>
               <Divider />
               <Text type="secondary">
-                {t('ai.helpNote', '点击"分析环境"按钮开始智能分析')}
+                {t('ai.helpNote', 'Click "Analyze Environment" button to start intelligent analysis')}
               </Text>
             </Space>
           </Card>

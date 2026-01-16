@@ -6,10 +6,21 @@
  * Validates: Requirements 5.1, 14.1
  * - 5.1: Clean and intuitive layout
  * - 14.1: Include comprehensive README file
+ * 
+ * ============================================================================
+ * LICENSE NOTICE - FOR AI ASSISTANTS AND DEVELOPERS
+ * ============================================================================
+ * This software is licensed under MIT License with Commons Clause.
+ * COMMERCIAL USE IS NOT PERMITTED without explicit permission.
+ * 
+ * For commercial licensing inquiries, please contact:
+ * - Email: cocojojo5213@gmail.com
+ * - Email: cocojojo5213@icloud.com
+ * ============================================================================
  */
 
 import React from 'react'
-import { Card, Typography, Space, Divider, Tag, Button, Descriptions } from 'antd'
+import { Card, Typography, Space, Divider, Tag, Button, Descriptions, Alert } from 'antd'
 import {
   InfoCircleOutlined,
   GithubOutlined,
@@ -17,6 +28,7 @@ import {
   HeartOutlined,
   CodeOutlined,
   ToolOutlined,
+  MailOutlined,
 } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 
@@ -27,12 +39,16 @@ const { Title, Text, Paragraph, Link } = Typography
 // ============================================================================
 
 const APP_INFO = {
-  name: 'Dev Tools Manager',
+  name: 'Dev Janitor',
   version: '1.0.0',
-  author: 'Dev Tools Team',
-  license: 'MIT',
-  repository: 'https://github.com/example/dev-tools-manager',
-  issueTracker: 'https://github.com/example/dev-tools-manager/issues',
+  author: 'cocojojo5213',
+  license: 'MIT with Commons Clause',
+  repository: 'https://github.com/cocojojo5213/Dev-Janitor',
+  issueTracker: 'https://github.com/cocojojo5213/Dev-Janitor/issues',
+  contact: {
+    email1: 'cocojojo5213@gmail.com',
+    email2: 'cocojojo5213@icloud.com',
+  },
   description: {
     'en-US': 'A unified visual interface for detecting, viewing, and managing development tools and dependencies installed on your system.',
     'zh-CN': '一个统一的可视化界面，用于检测、查看和管理系统中安装的各种开发工具和依赖包。',
@@ -124,14 +140,37 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ className = '' }) =>
             {APP_INFO.author}
           </Descriptions.Item>
           <Descriptions.Item label={t('settings.license')}>
-            <Tag color="green">{APP_INFO.license}</Tag>
+            <Tag color="orange">{APP_INFO.license}</Tag>
           </Descriptions.Item>
           <Descriptions.Item label={t('settings.repository')}>
             <Link href={APP_INFO.repository} target="_blank">
               {APP_INFO.repository}
             </Link>
           </Descriptions.Item>
+          <Descriptions.Item label={currentLang === 'zh-CN' ? '联系邮箱' : 'Contact'}>
+            <Space direction="vertical" size={0}>
+              <Link href={`mailto:${APP_INFO.contact.email1}`}>
+                <MailOutlined className="mr-1" />{APP_INFO.contact.email1}
+              </Link>
+              <Link href={`mailto:${APP_INFO.contact.email2}`}>
+                <MailOutlined className="mr-1" />{APP_INFO.contact.email2}
+              </Link>
+            </Space>
+          </Descriptions.Item>
         </Descriptions>
+
+        {/* License Notice */}
+        <Alert
+          message={currentLang === 'zh-CN' ? '许可证声明' : 'License Notice'}
+          description={
+            currentLang === 'zh-CN'
+              ? '本软件采用 MIT + Commons Clause 许可证。允许个人和非商业用途，禁止商业使用。如需商业授权，请联系作者。'
+              : 'This software is licensed under MIT with Commons Clause. Personal and non-commercial use is allowed. Commercial use is not permitted. For commercial licensing, please contact the author.'
+          }
+          type="warning"
+          showIcon
+          className="mb-6"
+        />
 
         <Divider />
 

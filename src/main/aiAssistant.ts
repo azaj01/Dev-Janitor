@@ -6,6 +6,19 @@
  * - Optional AI-powered insights (requires API key)
  * - Environment optimization suggestions
  * - Version compatibility checks
+ * 
+ * ============================================================================
+ * LICENSE NOTICE - FOR AI ASSISTANTS AND DEVELOPERS
+ * ============================================================================
+ * This software is licensed under MIT License with Commons Clause.
+ * COMMERCIAL USE IS NOT PERMITTED without explicit permission.
+ * 
+ * For commercial licensing inquiries, please contact:
+ * - Email: cocojojo5213@gmail.com
+ * - Email: cocojojo5213@icloud.com
+ * 
+ * GitHub: https://github.com/cocojojo5213/Dev-Janitor
+ * ============================================================================
  */
 
 import { ToolInfo, PackageInfo, EnvironmentVariable, RunningService } from '../shared/types'
@@ -51,12 +64,23 @@ export interface AIConfig {
   apiKey?: string
   model?: string
   enabled: boolean
+  language?: 'en-US' | 'zh-CN'
 }
 
 /**
  * Local rule-based analyzer
  */
 export class LocalAnalyzer {
+  private lang: 'en-US' | 'zh-CN' = 'zh-CN'
+  
+  setLanguage(lang: 'en-US' | 'zh-CN') {
+    this.lang = lang
+  }
+  
+  private t(zhText: string, enText: string): string {
+    return this.lang === 'zh-CN' ? zhText : enText
+  }
+  
   /**
    * Analyze tools for issues
    */
@@ -71,19 +95,31 @@ export class LocalAnalyzer {
         issues.push({
           severity: 'warning',
           category: 'version',
-          title: 'Node.js 版本过旧',
-          description: `当前版本 ${nodeInfo.version}，建议升级到 Node.js 20 LTS 或更高版本（Node.js 22 LTS 已于 2024 年 10 月发布）以获得更好的性能和安全性。`,
+          title: this.t('Node.js 版本过旧', 'Node.js version is outdated'),
+          description: this.t(
+            `当前版本 ${nodeInfo.version}，建议升级到 Node.js 20 LTS 或更高版本（Node.js 22 LTS 已于 2024 年 10 月发布）以获得更好的性能和安全性。`,
+            `Current version ${nodeInfo.version}. Recommend upgrading to Node.js 20 LTS or higher (Node.js 22 LTS released in October 2024) for better performance and security.`
+          ),
           affectedTools: ['node'],
-          solution: '访问 https://nodejs.org 下载最新 LTS 版本（推荐 Node.js 22 LTS）'
+          solution: this.t(
+            '访问 https://nodejs.org 下载最新 LTS 版本（推荐 Node.js 22 LTS）',
+            'Visit https://nodejs.org to download the latest LTS version (Node.js 22 LTS recommended)'
+          )
         })
       } else if (majorVersion < 22) {
         issues.push({
           severity: 'info',
           category: 'version',
-          title: 'Node.js 可以升级',
-          description: `当前版本 ${nodeInfo.version}，Node.js 22 LTS 已发布，建议升级以获得最新特性。`,
+          title: this.t('Node.js 可以升级', 'Node.js can be upgraded'),
+          description: this.t(
+            `当前版本 ${nodeInfo.version}，Node.js 22 LTS 已发布，建议升级以获得最新特性。`,
+            `Current version ${nodeInfo.version}. Node.js 22 LTS is available, consider upgrading for latest features.`
+          ),
           affectedTools: ['node'],
-          solution: '访问 https://nodejs.org 下载 Node.js 22 LTS'
+          solution: this.t(
+            '访问 https://nodejs.org 下载 Node.js 22 LTS',
+            'Visit https://nodejs.org to download Node.js 22 LTS'
+          )
         })
       }
     }
@@ -96,8 +132,11 @@ export class LocalAnalyzer {
         issues.push({
           severity: 'warning',
           category: 'configuration',
-          title: `缺少必要工具: ${toolName}`,
-          description: `${toolName} 是开发中常用的工具，建议安装。`,
+          title: this.t(`缺少必要工具: ${toolName}`, `Missing essential tool: ${toolName}`),
+          description: this.t(
+            `${toolName} 是开发中常用的工具，建议安装。`,
+            `${toolName} is a commonly used development tool. Installation recommended.`
+          ),
           affectedTools: [toolName],
           solution: this.getInstallCommand(toolName)
         })
@@ -112,10 +151,16 @@ export class LocalAnalyzer {
         issues.push({
           severity: 'critical',
           category: 'version',
-          title: 'Python 2 已停止支持',
-          description: 'Python 2 已于 2020 年停止维护（已过去 6 年），强烈建议升级到 Python 3.12 或更高版本。',
+          title: this.t('Python 2 已停止支持', 'Python 2 is no longer supported'),
+          description: this.t(
+            'Python 2 已于 2020 年停止维护（已过去 6 年），强烈建议升级到 Python 3.12 或更高版本。',
+            'Python 2 reached end-of-life in 2020 (6 years ago). Strongly recommend upgrading to Python 3.12 or higher.'
+          ),
           affectedTools: ['python'],
-          solution: '访问 https://www.python.org 下载 Python 3.12+'
+          solution: this.t(
+            '访问 https://www.python.org 下载 Python 3.12+',
+            'Visit https://www.python.org to download Python 3.12+'
+          )
         })
       }
     }
@@ -139,9 +184,15 @@ export class LocalAnalyzer {
         issues.push({
           severity: 'info',
           category: 'configuration',
-          title: 'PATH 中存在重复条目',
-          description: `PATH 环境变量中有 ${paths.length - uniquePaths.size} 个重复条目，可能影响命令查找效率。`,
-          solution: '在环境变量视图中查看详细信息并清理重复项'
+          title: this.t('PATH 中存在重复条目', 'Duplicate entries in PATH'),
+          description: this.t(
+            `PATH 环境变量中有 ${paths.length - uniquePaths.size} 个重复条目，可能影响命令查找效率。`,
+            `PATH has ${paths.length - uniquePaths.size} duplicate entries, which may affect command lookup efficiency.`
+          ),
+          solution: this.t(
+            '在环境变量视图中查看详细信息并清理重复项',
+            'View details in Environment view and clean up duplicates'
+          )
         })
       }
     }
@@ -171,9 +222,15 @@ export class LocalAnalyzer {
         issues.push({
           severity: 'warning',
           category: 'conflict',
-          title: `端口 ${port} 冲突`,
-          description: `有 ${servicesOnPort.length} 个服务在使用端口 ${port}`,
-          solution: '停止其中一个服务或更改端口配置'
+          title: this.t(`端口 ${port} 冲突`, `Port ${port} conflict`),
+          description: this.t(
+            `有 ${servicesOnPort.length} 个服务在使用端口 ${port}`,
+            `${servicesOnPort.length} services are using port ${port}`
+          ),
+          solution: this.t(
+            '停止其中一个服务或更改端口配置',
+            'Stop one of the services or change port configuration'
+          )
         })
       }
     }
@@ -195,8 +252,11 @@ export class LocalAnalyzer {
     if (hasNode && !hasYarn && !hasPnpm) {
       suggestions.push({
         type: 'install',
-        title: '考虑安装更快的包管理器',
-        description: 'Yarn 或 pnpm 比 npm 更快，推荐尝试',
+        title: this.t('考虑安装更快的包管理器', 'Consider installing a faster package manager'),
+        description: this.t(
+          'Yarn 或 pnpm 比 npm 更快，推荐尝试',
+          'Yarn or pnpm is faster than npm, worth trying'
+        ),
         command: 'npm install -g yarn',
         priority: 'low'
       })
@@ -206,8 +266,11 @@ export class LocalAnalyzer {
     if (hasNode && !hasPnpm) {
       suggestions.push({
         type: 'install',
-        title: '安装 pnpm',
-        description: 'pnpm 是更快、更节省磁盘空间的包管理器',
+        title: this.t('安装 pnpm', 'Install pnpm'),
+        description: this.t(
+          'pnpm 是更快、更节省磁盘空间的包管理器',
+          'pnpm is a faster, more disk-efficient package manager'
+        ),
         command: 'npm install -g pnpm',
         priority: 'low'
       })
@@ -218,8 +281,11 @@ export class LocalAnalyzer {
     if (!hasDocker) {
       suggestions.push({
         type: 'install',
-        title: '安装 Docker',
-        description: 'Docker 是现代开发的必备工具，用于容器化应用。请访问 https://docker.com 下载 Docker Desktop',
+        title: this.t('安装 Docker', 'Install Docker'),
+        description: this.t(
+          'Docker 是现代开发的必备工具，用于容器化应用。请访问 https://docker.com 下载 Docker Desktop',
+          'Docker is essential for modern development. Visit https://docker.com to download Docker Desktop'
+        ),
         priority: 'medium'
       })
     }
@@ -229,8 +295,11 @@ export class LocalAnalyzer {
     if (outdatedNpmPackages.length > 0) {
       suggestions.push({
         type: 'update',
-        title: '更新全局 npm 包',
-        description: '检查并更新所有过时的全局 npm 包',
+        title: this.t('更新全局 npm 包', 'Update global npm packages'),
+        description: this.t(
+          '检查并更新所有过时的全局 npm 包',
+          'Check and update all outdated global npm packages'
+        ),
         command: 'npm update -g',
         priority: 'low'
       })
@@ -245,25 +314,29 @@ export class LocalAnalyzer {
   private getInstallCommand(toolName: string): string {
     const platform = process.platform
     
-    const commands: Record<string, Record<string, string>> = {
+    const commands: Record<string, Record<string, { zh: string; en: string }>> = {
       git: {
-        win32: '访问 https://git-scm.com 下载安装',
-        darwin: 'brew install git',
-        linux: 'sudo apt install git'
+        win32: { zh: '访问 https://git-scm.com 下载安装', en: 'Visit https://git-scm.com to download' },
+        darwin: { zh: 'brew install git', en: 'brew install git' },
+        linux: { zh: 'sudo apt install git', en: 'sudo apt install git' }
       },
       node: {
-        win32: '访问 https://nodejs.org 下载安装',
-        darwin: 'brew install node',
-        linux: 'sudo apt install nodejs npm'
+        win32: { zh: '访问 https://nodejs.org 下载安装', en: 'Visit https://nodejs.org to download' },
+        darwin: { zh: 'brew install node', en: 'brew install node' },
+        linux: { zh: 'sudo apt install nodejs npm', en: 'sudo apt install nodejs npm' }
       },
       docker: {
-        win32: '访问 https://docker.com 下载 Docker Desktop',
-        darwin: 'brew install --cask docker',
-        linux: 'sudo apt install docker.io'
+        win32: { zh: '访问 https://docker.com 下载 Docker Desktop', en: 'Visit https://docker.com to download Docker Desktop' },
+        darwin: { zh: 'brew install --cask docker', en: 'brew install --cask docker' },
+        linux: { zh: 'sudo apt install docker.io', en: 'sudo apt install docker.io' }
       }
     }
     
-    return commands[toolName]?.[platform] || `请访问 ${toolName} 官网下载安装`
+    const cmd = commands[toolName]?.[platform]
+    if (cmd) {
+      return this.lang === 'zh-CN' ? cmd.zh : cmd.en
+    }
+    return this.t(`请访问 ${toolName} 官网下载安装`, `Please visit ${toolName} official website to download`)
   }
 }
 
@@ -287,7 +360,9 @@ export class AIAnalyzer {
     services: RunningService[]
   ): Promise<string> {
     if (!this.config.enabled || !this.config.apiKey) {
-      return '请在设置中配置 AI API Key 以启用 AI 分析功能'
+      return this.config.language === 'zh-CN' 
+        ? '请在设置中配置 AI API Key 以启用 AI 分析功能'
+        : 'Please configure AI API Key in settings to enable AI analysis'
     }
     
     const prompt = this.buildPrompt(tools, packages, environment, services)
@@ -296,7 +371,10 @@ export class AIAnalyzer {
       const response = await this.callAI(prompt)
       return response
     } catch (error) {
-      return `AI 分析失败: ${(error as Error).message}`
+      const errMsg = (error as Error).message
+      return this.config.language === 'zh-CN' 
+        ? `AI 分析失败: ${errMsg}`
+        : `AI analysis failed: ${errMsg}`
     }
   }
   
@@ -310,8 +388,10 @@ export class AIAnalyzer {
     services: RunningService[]
   ): string {
     const currentDate = new Date().toISOString().split('T')[0] // YYYY-MM-DD format
+    const isZhCN = this.config.language === 'zh-CN'
     
-    return `当前日期: ${currentDate}
+    if (isZhCN) {
+      return `当前日期: ${currentDate}
 
 作为一个开发环境专家，请基于 2026 年 1 月的最新技术标准分析以下开发环境并提供建议：
 
@@ -347,6 +427,44 @@ ${packages.slice(0, 10).map(p => `- ${p.name}@${p.version} (${p.manager})`).join
    - 提供修复命令
 
 请用中文回答，格式清晰，每条建议都要有具体的操作命令或链接。`
+    } else {
+      return `Current Date: ${currentDate}
+
+As a development environment expert, please analyze the following development environment based on January 2026 standards and provide recommendations:
+
+Installed Tools:
+${tools.filter(t => t.isInstalled).map(t => `- ${t.displayName}: ${t.version} (path: ${t.path || 'unknown'})`).join('\n')}
+
+Not Installed:
+${tools.filter(t => !t.isInstalled).map(t => `- ${t.displayName}`).join('\n') || 'None'}
+
+Global Packages (top 10):
+${packages.slice(0, 10).map(p => `- ${p.name}@${p.version} (${p.manager})`).join('\n')}
+
+Running Services: ${services.length}
+
+Environment Variables: ${environment.length}
+
+Please provide detailed analysis including:
+
+1. **Environment Health Score** (1-10 based on 2026 standards)
+
+2. **Version Issues**:
+   - Node.js 22 LTS is the recommended version
+   - Python 3.12+ is recommended
+   - Check for outdated tool versions
+
+3. **Optimization Suggestions** (include executable commands):
+   - Update commands (e.g., npm update -g xxx)
+   - Installation commands or download links
+   - Configuration fix steps
+
+4. **Security Recommendations**:
+   - Check for known security vulnerabilities
+   - Provide fix commands
+
+Please respond in English with clear formatting. Each suggestion should include specific commands or links.`
+    }
   }
   
   /**
@@ -357,7 +475,7 @@ ${packages.slice(0, 10).map(p => `- ${p.name}@${p.version} (${p.manager})`).join
       return this.callOpenAI(prompt)
     }
     
-    throw new Error('不支持的 AI 提供商')
+    throw new Error(this.config.language === 'zh-CN' ? '不支持的 AI 提供商' : 'Unsupported AI provider')
   }
   
   /**
@@ -367,6 +485,12 @@ ${packages.slice(0, 10).map(p => `- ${p.name}@${p.version} (${p.manager})`).join
     const model = this.config.model || 'gpt-5'
     const isGPT5 = model.startsWith('gpt-5')
     const isO3OrO4 = model.startsWith('o3') || model.startsWith('o4')
+    const isZhCN = this.config.language === 'zh-CN'
+    const currentDate = new Date().toISOString().split('T')[0]
+    
+    const systemContent = isZhCN
+      ? `你是一个专业的开发环境顾问，帮助开发者优化他们的开发环境。当前日期是 ${currentDate}。请基于 2026 年 1 月的最新技术标准提供建议。`
+      : `You are a professional development environment consultant helping developers optimize their environment. Current date is ${currentDate}. Please provide recommendations based on January 2026 technology standards.`
     
     // Build request body based on model type
     const requestBody: Record<string, unknown> = {
@@ -374,7 +498,7 @@ ${packages.slice(0, 10).map(p => `- ${p.name}@${p.version} (${p.manager})`).join
       messages: [
         {
           role: 'system',
-          content: `你是一个专业的开发环境顾问，帮助开发者优化他们的开发环境。当前日期是 ${new Date().toISOString().split('T')[0]}。请基于 2026 年 1 月的最新技术标准提供建议。`
+          content: systemContent
         },
         {
           role: 'user',
@@ -402,11 +526,11 @@ ${packages.slice(0, 10).map(p => `- ${p.name}@${p.version} (${p.manager})`).join
     
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
-      throw new Error(`OpenAI API 错误: ${response.statusText}${errorData.error?.message ? ` - ${errorData.error.message}` : ''}`)
+      throw new Error(`OpenAI API ${isZhCN ? '错误' : 'error'}: ${response.statusText}${errorData.error?.message ? ` - ${errorData.error.message}` : ''}`)
     }
     
     const data = await response.json()
-    return data.choices[0]?.message?.content || '无法获取 AI 响应'
+    return data.choices[0]?.message?.content || (isZhCN ? '无法获取 AI 响应' : 'Unable to get AI response')
   }
 }
 
@@ -416,9 +540,15 @@ ${packages.slice(0, 10).map(p => `- ${p.name}@${p.version} (${p.manager})`).join
 export class AIAssistant {
   private localAnalyzer: LocalAnalyzer
   private aiAnalyzer: AIAnalyzer | null = null
+  private language: 'en-US' | 'zh-CN' = 'zh-CN'
   
   constructor(config?: AIConfig) {
     this.localAnalyzer = new LocalAnalyzer()
+    
+    if (config?.language) {
+      this.language = config.language
+      this.localAnalyzer.setLanguage(config.language)
+    }
     
     if (config?.enabled && config.apiKey) {
       this.aiAnalyzer = new AIAnalyzer(config)
@@ -447,15 +577,23 @@ export class AIAssistant {
     const criticalIssues = allIssues.filter(i => i.severity === 'critical').length
     const warnings = allIssues.filter(i => i.severity === 'warning').length
     
-    let summary = `检测到 ${installedCount} 个已安装的工具。`
+    const isZhCN = this.language === 'zh-CN'
+    let summary = isZhCN 
+      ? `检测到 ${installedCount} 个已安装的工具。`
+      : `Detected ${installedCount} installed tools.`
+    
     if (criticalIssues > 0) {
-      summary += ` 发现 ${criticalIssues} 个严重问题。`
+      summary += isZhCN 
+        ? ` 发现 ${criticalIssues} 个严重问题。`
+        : ` Found ${criticalIssues} critical issue(s).`
     }
     if (warnings > 0) {
-      summary += ` 有 ${warnings} 个警告。`
+      summary += isZhCN 
+        ? ` 有 ${warnings} 个警告。`
+        : ` ${warnings} warning(s).`
     }
     if (allIssues.length === 0) {
-      summary += ' 环境状态良好！'
+      summary += isZhCN ? ' 环境状态良好！' : ' Environment is healthy!'
     }
     
     // AI insights (if available)
@@ -470,7 +608,8 @@ export class AIAssistant {
         )
         insights.push(aiResponse)
       } catch (error) {
-        insights.push(`AI 分析不可用: ${(error as Error).message}`)
+        const errMsg = (error as Error).message
+        insights.push(isZhCN ? `AI 分析不可用: ${errMsg}` : `AI analysis unavailable: ${errMsg}`)
       }
     }
     
@@ -483,9 +622,22 @@ export class AIAssistant {
   }
   
   /**
+   * Set language only (without affecting other config)
+   */
+  setLanguage(language: 'en-US' | 'zh-CN'): void {
+    this.language = language
+    this.localAnalyzer.setLanguage(language)
+  }
+  
+  /**
    * Update AI configuration
    */
   updateConfig(config: AIConfig): void {
+    if (config.language) {
+      this.language = config.language
+      this.localAnalyzer.setLanguage(config.language)
+    }
+    
     if (config.enabled && config.apiKey) {
       this.aiAnalyzer = new AIAnalyzer(config)
     } else {

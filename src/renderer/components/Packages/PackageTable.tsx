@@ -110,10 +110,10 @@ const PackageTable: React.FC<PackageTableProps> = ({
     }
     navigator.clipboard.writeText(command)
       .then(() => {
-        message.success('更新命令已复制到剪贴板')
+        message.success(t('notifications.copySuccess', 'Copied to clipboard'))
       })
       .catch(() => {
-        message.error('复制失败')
+        message.error(t('notifications.copyFailed', 'Copy failed'))
       })
   }
 
@@ -127,7 +127,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
   // Check single package version
   const checkVersion = async (packageName: string) => {
     if (manager !== 'npm' && manager !== 'pip') {
-      message.info('目前仅支持 npm 和 pip 包版本检查')
+      message.info(t('packages.versionCheckNotSupported', 'Version check only supports npm and pip'))
       return
     }
 
@@ -152,13 +152,13 @@ const PackageTable: React.FC<PackageTableProps> = ({
       } else {
         setVersionCache(prev => ({
           ...prev,
-          [packageName]: { latest: '未知', checking: false, checked: true }
+          [packageName]: { latest: t('common.unknown', 'Unknown'), checking: false, checked: true }
         }))
       }
     } catch (error) {
       setVersionCache(prev => ({
         ...prev,
-        [packageName]: { latest: '检查失败', checking: false, checked: true }
+        [packageName]: { latest: t('packages.checkFailed', 'Check failed'), checking: false, checked: true }
       }))
     }
   }
@@ -166,7 +166,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
   // Check all packages versions
   const checkAllVersions = async () => {
     if (manager !== 'npm' && manager !== 'pip') {
-      message.info('目前仅支持 npm 和 pip 包版本检查')
+      message.info(t('packages.versionCheckNotSupported', 'Version check only supports npm and pip'))
       return
     }
 
@@ -179,7 +179,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
     }
     
     setCheckingAll(false)
-    message.success('版本检查完成')
+    message.success(t('packages.versionCheckComplete', 'Version check complete'))
   }
 
   // Render version status
@@ -200,7 +200,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
           onClick={() => checkVersion(record.name)}
           disabled={info?.checking}
         >
-          {info?.checking ? '检查中...' : '检查更新'}
+          {info?.checking ? t('packages.checking', 'Checking...') : t('packages.checkUpdate', 'Check Update')}
         </Button>
       )
     }
@@ -210,20 +210,20 @@ const PackageTable: React.FC<PackageTableProps> = ({
     if (comparison >= 0) {
       return (
         <Tag icon={<CheckCircleOutlined />} color="success">
-          最新
+          {t('packages.latest', 'Latest')}
         </Tag>
       )
     } else {
       return (
         <Space>
-          <Tooltip title={`最新版本: ${info.latest}，点击复制更新命令`}>
+          <Tooltip title={`${t('packages.latestVersion', 'Latest version')}: ${info.latest}`}>
             <Tag 
               icon={<ArrowUpOutlined />} 
               color="warning"
               style={{ cursor: 'pointer' }}
               onClick={() => handleCopyUpdateCommand(record.name)}
             >
-              可更新 → {info.latest}
+              {t('packages.canUpdate', 'Update')} → {info.latest}
             </Tag>
           </Tooltip>
         </Space>
@@ -241,7 +241,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
       render: (name: string) => (
         <div className="flex items-center gap-2">
           <Text strong className="font-mono">{name}</Text>
-          <Tooltip title="在浏览器中查看">
+          <Tooltip title={t('tooltips.openExternal', 'Open in browser')}>
             <Button
               type="text"
               size="small"
@@ -263,7 +263,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
       ),
     },
     {
-      title: '版本状态',
+      title: t('packages.versionStatus', 'Version Status'),
       key: 'versionStatus',
       width: 150,
       render: (_, record) => renderVersionStatus(record),
@@ -305,7 +305,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
             onClick={checkAllVersions}
             disabled={checkingAll}
           >
-            {checkingAll ? '检查中...' : '检查所有包的更新'}
+            {checkingAll ? t('packages.checking', 'Checking...') : t('packages.checkAllUpdates', 'Check All Updates')}
           </Button>
         </div>
       )}

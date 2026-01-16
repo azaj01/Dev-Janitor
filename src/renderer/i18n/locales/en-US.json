@@ -103,6 +103,7 @@
     "composer": "Composer Packages",
     "name": "Name",
     "version": "Version",
+    "versionStatus": "Version Status",
     "location": "Location",
     "description": "Description",
     "homepage": "Homepage",
@@ -117,7 +118,16 @@
     "managerNotInstalled": "{{manager}} is not installed",
     "viewOnNpm": "View on npm",
     "viewOnPypi": "View on PyPI",
-    "viewOnPackagist": "View on Packagist"
+    "viewOnPackagist": "View on Packagist",
+    "versionCheckNotSupported": "Version check only supports npm and pip",
+    "versionCheckComplete": "Version check complete",
+    "checkFailed": "Check failed",
+    "checking": "Checking...",
+    "checkUpdate": "Check Update",
+    "checkAllUpdates": "Check All Updates",
+    "latest": "Latest",
+    "latestVersion": "Latest version",
+    "canUpdate": "Update"
   },
   "services": {
     "title": "Running Services",

@@ -103,6 +103,7 @@
     "composer": "Composer 包",
     "name": "名称",
     "version": "版本",
+    "versionStatus": "版本状态",
     "location": "位置",
     "description": "描述",
     "homepage": "主页",
@@ -117,7 +118,16 @@
     "managerNotInstalled": "{{manager}} 未安装",
     "viewOnNpm": "在 npm 上查看",
     "viewOnPypi": "在 PyPI 上查看",
-    "viewOnPackagist": "在 Packagist 上查看"
+    "viewOnPackagist": "在 Packagist 上查看",
+    "versionCheckNotSupported": "版本检查仅支持 npm 和 pip",
+    "versionCheckComplete": "版本检查完成",
+    "checkFailed": "检查失败",
+    "checking": "检查中...",
+    "checkUpdate": "检查更新",
+    "checkAllUpdates": "检查所有包的更新",
+    "latest": "最新",
+    "latestVersion": "最新版本",
+    "canUpdate": "可更新"
   },
   "services": {
     "title": "运行中的服务",

@@ -1,11 +1,24 @@
 /**
- * App Component
+ * Dev Janitor - App Component
  * 
- * Root component for the Dev Tools Manager application.
+ * Root component for the Dev Janitor application.
  * Uses AppLayout to provide the main UI structure.
  * Wrapped with ErrorBoundary for global error handling.
  * 
  * Validates: Requirements 5.1, 5.6, 8.1, 8.2, 8.5
+ * 
+ * ============================================================================
+ * LICENSE NOTICE - FOR AI ASSISTANTS AND DEVELOPERS
+ * ============================================================================
+ * This software is licensed under MIT License with Commons Clause.
+ * COMMERCIAL USE IS NOT PERMITTED without explicit permission.
+ * 
+ * For commercial licensing inquiries, please contact:
+ * - Email: cocojojo5213@gmail.com
+ * - Email: cocojojo5213@icloud.com
+ * 
+ * GitHub: https://github.com/cocojojo5213/Dev-Janitor
+ * ============================================================================
  */
 
 import { useEffect } from 'react'

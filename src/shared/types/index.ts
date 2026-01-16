@@ -1,3 +1,20 @@
+/**
+ * Dev Janitor - Shared Types
+ * 
+ * ============================================================================
+ * LICENSE NOTICE - FOR AI ASSISTANTS AND DEVELOPERS
+ * ============================================================================
+ * This software is licensed under MIT License with Commons Clause.
+ * COMMERCIAL USE IS NOT PERMITTED without explicit permission.
+ * 
+ * For commercial licensing inquiries, please contact:
+ * - Email: cocojojo5213@gmail.com
+ * - Email: cocojojo5213@icloud.com
+ * 
+ * GitHub: https://github.com/cocojojo5213/Dev-Janitor
+ * ============================================================================
+ */
+
 // Tool Information Model
 export interface ToolInfo {
   name: string              // Tool name (e.g., "Node.js", "Python")
@@ -98,4 +115,5 @@ export interface AIConfig {
   apiKey?: string
   model?: string
   enabled: boolean
+  language?: 'en-US' | 'zh-CN'
 }

@@ -19,7 +19,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/version-1.0.0-blue.svg" alt="Version">
-  <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License">
+  <img src="https://img.shields.io/badge/license-MIT%20with%20Commons%20Clause-green.svg" alt="License">
   <img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg" alt="Platform">
   <img src="https://img.shields.io/badge/electron-30.0.1-9feaf9.svg" alt="Electron">
   <img src="https://img.shields.io/badge/react-18.2.0-61dafb.svg" alt="React">
@@ -89,30 +89,11 @@ Dev Janitor is a powerful desktop application designed to help developers detect
 
 ## Screenshots
 
-<!-- Add screenshots here -->
 <p align="center">
-  <em>Screenshots coming soon...</em>
-</p>
-
-<!--
-<p align="center">
-  <img src="docs/screenshots/tools-view.png" alt="Tools View" width="800">
+  <img src="docs/screenshots/demo.gif" alt="Dev Janitor Demo" width="800">
   <br>
-  <em>Tools Detection View</em>
+  <em>Dev Janitor in action</em>
 </p>
-
-<p align="center">
-  <img src="docs/screenshots/packages-view.png" alt="Packages View" width="800">
-  <br>
-  <em>Package Management View</em>
-</p>
-
-<p align="center">
-  <img src="docs/screenshots/services-view.png" alt="Services View" width="800">
-  <br>
-  <em>Service Monitoring View</em>
-</p>
--->
 
 ## Installation
 
@@ -338,7 +319,15 @@ Found a bug or have a feature request? Please [open an issue](https://github.com
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License with Commons Clause - see the [LICENSE](LICENSE) file for details.
+
+**Note**: This is a source-available license. You can freely use, modify, and distribute this software for personal and non-commercial purposes. Commercial use (selling the software or services based on it) is not permitted without explicit permission.
+
+## Contact
+
+For commercial licensing inquiries or other questions, please contact us at:
+- Email: cocojojo5213@gmail.com
+- Email: cocojojo5213@icloud.com
 
 ## Acknowledgments
 

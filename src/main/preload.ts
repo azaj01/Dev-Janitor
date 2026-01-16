@@ -60,7 +60,7 @@ interface ElectronAPI {
 
   // AI Assistant API
   ai: {
-    analyze: () => Promise<AnalysisResult>
+    analyze: (language?: 'en-US' | 'zh-CN') => Promise<AnalysisResult>
     updateConfig: (config: AIConfig) => Promise<void>
   }
 
@@ -157,7 +157,7 @@ const electronAPI: ElectronAPI = {
 
   // AI Assistant API
   ai: {
-    analyze: () => ipcRenderer.invoke('ai:analyze'),
+    analyze: (language?: 'en-US' | 'zh-CN') => ipcRenderer.invoke('ai:analyze', language),
     updateConfig: (config: AIConfig) => ipcRenderer.invoke('ai:update-config', config),
   },
 
