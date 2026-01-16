@@ -216,13 +216,23 @@ export class DetectionEngine {
     const category: ToolInfo['category'] = 'runtime'
     
     try {
-      // Try python3 first, then python
-      let versionResult = await this.executor.executeSafe('python3 --version')
-      let pythonCmd = 'python3'
+      // Try different Python commands based on platform
+      // Windows: py (Python Launcher), python, python3
+      // Unix: python3, python
+      const isWindows = process.platform === 'win32'
+      const commands = isWindows 
+        ? ['py', 'python', 'python3']
+        : ['python3', 'python']
       
-      if (!versionResult.success) {
-        versionResult = await this.executor.executeSafe('python --version')
-        pythonCmd = 'python'
+      let versionResult = { success: false, stdout: '', stderr: '', exitCode: 1 }
+      let pythonCmd = ''
+      
+      for (const cmd of commands) {
+        versionResult = await this.executor.executeSafe(`${cmd} --version`)
+        if (versionResult.success) {
+          pythonCmd = cmd
+          break
+        }
       }
       
       if (!versionResult.success) {
@@ -258,13 +268,23 @@ export class DetectionEngine {
     const category: ToolInfo['category'] = 'package-manager'
     
     try {
-      // Try pip3 first, then pip
-      let versionResult = await this.executor.executeSafe('pip3 --version')
-      let pipCmd = 'pip3'
+      // Try different pip commands based on platform
+      // Windows: pip, pip3, py -m pip
+      // Unix: pip3, pip
+      const isWindows = process.platform === 'win32'
+      const commands = isWindows 
+        ? ['pip', 'pip3', 'py -m pip']
+        : ['pip3', 'pip']
       
-      if (!versionResult.success) {
-        versionResult = await this.executor.executeSafe('pip --version')
-        pipCmd = 'pip'
+      let versionResult = { success: false, stdout: '', stderr: '', exitCode: 1 }
+      let pipCmd = ''
+      
+      for (const cmd of commands) {
+        versionResult = await this.executor.executeSafe(`${cmd} --version`)
+        if (versionResult.success) {
+          pipCmd = cmd
+          break
+        }
       }
       
       if (!versionResult.success) {
@@ -273,7 +293,10 @@ export class DetectionEngine {
       
       // pip version output: "pip 23.2.1 from /path/to/pip (python 3.11)"
       const { version } = parseVersion(versionResult.stdout)
-      const path = await this.executor.getToolPath(pipCmd)
+      
+      // For 'py -m pip', get the path of py instead
+      const pathCmd = pipCmd === 'py -m pip' ? 'py' : pipCmd
+      const path = await this.executor.getToolPath(pathCmd)
       
       return {
         name,
@@ -446,15 +469,36 @@ export class DetectionEngine {
   async detectAllTools(): Promise<ToolInfo[]> {
     // Run all detections in parallel for better performance
     const results = await Promise.all([
+      // Runtimes
       this.detectNodeJS(),
-      this.detectNpm(),
       this.detectPython(),
-      this.detectPip(),
       this.detectPHP(),
+      this.detectCustomTool('java', 'Java', '-version'),
+      this.detectCustomTool('go', 'Go', 'version'),
+      this.detectCustomTool('rust', 'Rust', '--version').catch(() => 
+        this.detectCustomTool('rustc', 'Rust', '--version')
+      ),
+      this.detectCustomTool('ruby', 'Ruby', '--version'),
+      this.detectCustomTool('dotnet', '.NET', '--version'),
+      
+      // Package Managers
+      this.detectNpm(),
+      this.detectPip(),
       this.detectComposer(),
+      this.detectCustomTool('yarn', 'Yarn', '--version'),
+      this.detectCustomTool('pnpm', 'pnpm', '--version'),
+      this.detectCustomTool('cargo', 'Cargo', '--version'),
+      this.detectCustomTool('gem', 'RubyGems', '--version'),
+      
+      // Version Control & Tools
+      this.detectCustomTool('git', 'Git', '--version'),
+      this.detectCustomTool('docker', 'Docker', '--version'),
+      this.detectCustomTool('kubectl', 'Kubernetes CLI', 'version --client'),
+      this.detectCustomTool('terraform', 'Terraform', '--version'),
     ])
     
-    return results
+    // Filter out failed detections and return only installed tools
+    return results.filter(tool => tool !== null)
   }
 }
 

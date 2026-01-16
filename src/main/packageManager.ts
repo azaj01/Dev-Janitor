@@ -244,18 +244,21 @@ export async function listNpmPackages(): Promise<PackageInfo[]> {
  * @returns Promise resolving to array of PackageInfo
  */
 export async function listPipPackages(): Promise<PackageInfo[]> {
-  // Try pip3 first, then pip
-  let result = await executeSafe('pip3 list --format=json')
+  // Try different pip commands based on platform
+  // Windows: pip, pip3, py -m pip
+  // Unix: pip3, pip
+  const commands = isWindows()
+    ? ['pip list --format=json', 'pip3 list --format=json', 'py -m pip list --format=json']
+    : ['pip3 list --format=json', 'pip list --format=json']
   
-  if (!result.success || !result.stdout) {
-    result = await executeSafe('pip list --format=json')
+  for (const cmd of commands) {
+    const result = await executeSafe(cmd)
+    if (result.success && result.stdout) {
+      return parsePipOutput(result.stdout)
+    }
   }
   
-  if (!result.success && !result.stdout) {
-    return []
-  }
-  
-  return parsePipOutput(result.stdout)
+  return []
 }
 
 /**
@@ -297,7 +300,11 @@ export async function uninstallPackage(
       command = `npm uninstall -g ${packageName}`
       break
     case 'pip':
-      // Use -y to auto-confirm
+      // Use -y to auto-confirm, try py -m pip on Windows first
+      if (isWindows()) {
+        const pyResult = await executeSafe(`py -m pip uninstall -y ${packageName}`)
+        if (pyResult.success) return true
+      }
       command = `pip uninstall -y ${packageName}`
       break
     case 'composer':
@@ -327,7 +334,13 @@ export async function getGlobalPath(
       command = 'npm root -g'
       break
     case 'pip':
-      // Get site-packages location
+      // Get site-packages location, try py on Windows first
+      if (isWindows()) {
+        const pyResult = await executeSafe('py -c "import site; print(site.getsitepackages()[0])"')
+        if (pyResult.success && pyResult.stdout) {
+          return pyResult.stdout.trim()
+        }
+      }
       command = isWindows()
         ? 'python -c "import site; print(site.getsitepackages()[0])"'
         : 'python3 -c "import site; print(site.getsitepackages()[0])"'
@@ -357,24 +370,31 @@ export async function getGlobalPath(
 export async function isPackageManagerAvailable(
   manager: 'npm' | 'pip' | 'composer'
 ): Promise<boolean> {
-  let command: string
+  let commands: string[]
   
   switch (manager) {
     case 'npm':
-      command = 'npm --version'
+      commands = ['npm --version']
       break
     case 'pip':
-      command = 'pip3 --version'
+      // Try multiple pip commands on Windows
+      commands = isWindows()
+        ? ['pip --version', 'pip3 --version', 'py -m pip --version']
+        : ['pip3 --version', 'pip --version']
       break
     case 'composer':
-      command = 'composer --version'
+      commands = ['composer --version']
       break
     default:
       return false
   }
   
-  const result = await executeSafe(command)
-  return result.success
+  for (const cmd of commands) {
+    const result = await executeSafe(cmd)
+    if (result.success) return true
+  }
+  
+  return false
 }
 
 /**
