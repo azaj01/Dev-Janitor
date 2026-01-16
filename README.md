@@ -42,14 +42,19 @@ Dev Janitor is a powerful desktop application designed to help developers detect
 
 ### 🤖 AI Assistant (NEW!)
 - **Local Analysis**: Free, offline intelligent analysis without API key
-  - Detects outdated tool versions
+  - Detects outdated tool versions (Node.js 22 LTS, Python 3.12+ standards)
   - Finds PATH duplicates and conflicts
   - Identifies port conflicts
   - Suggests missing essential tools
 - **AI-Powered Insights**: Optional OpenAI integration for deeper analysis
   - Environment health assessment
   - Personalized optimization recommendations
-  - Best practices suggestions
+  - Best practices suggestions (2026 standards)
+- **Supported Models** (January 2026):
+  - GPT-5 (Recommended - Best coding capability, 400K context)
+  - GPT-5 Mini / GPT-5 Nano (Fast & economical)
+  - o3 / o4-mini (Reasoning-enhanced for complex problems)
+  - GPT-4.1 (Previous stable version)
 - **Smart Suggestions**: Actionable recommendations with commands
 - **Multi-language**: Full support in English and Chinese
 
@@ -57,7 +62,8 @@ Dev Janitor is a powerful desktop application designed to help developers detect
 - **NPM Packages**: View and manage globally installed npm packages
 - **Python Packages**: Browse pip-installed packages
 - **Composer Packages**: Manage PHP Composer global packages
-- **Uninstall Support**: Remove packages directly from the interface
+- **Version Check**: Detect outdated package versions (NEW!)
+- **Safe Operations**: View and copy path only, removed dangerous operations like delete/open file
 
 ### ⚡ Service Monitoring
 - **Running Services**: Monitor development servers and processes
