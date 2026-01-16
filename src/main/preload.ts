@@ -31,6 +31,8 @@ interface ElectronAPI {
     listNpm: () => Promise<PackageInfo[]>
     listPip: () => Promise<PackageInfo[]>
     listComposer: () => Promise<PackageInfo[]>
+    listCargo: () => Promise<PackageInfo[]>
+    listGem: () => Promise<PackageInfo[]>
     uninstall: (name: string, manager: string) => Promise<boolean>
   }
 
@@ -96,6 +98,8 @@ const electronAPI: ElectronAPI = {
     listNpm: () => ipcRenderer.invoke('packages:list-npm'),
     listPip: () => ipcRenderer.invoke('packages:list-pip'),
     listComposer: () => ipcRenderer.invoke('packages:list-composer'),
+    listCargo: () => ipcRenderer.invoke('packages:list-cargo'),
+    listGem: () => ipcRenderer.invoke('packages:list-gem'),
     uninstall: (name: string, manager: string) => 
       ipcRenderer.invoke('packages:uninstall', name, manager),
   },

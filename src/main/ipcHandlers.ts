@@ -117,6 +117,30 @@ function registerPackagesHandlers(): void {
     }
   })
 
+  // List cargo packages
+  ipcMain.handle('packages:list-cargo', async (): Promise<PackageInfo[]> => {
+    try {
+      const packages = await packageManager.listCargoPackages()
+      return packages
+    } catch (error) {
+      console.error('Error listing cargo packages:', error)
+      sendToAllWindows('error', `Failed to list cargo packages: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      return []
+    }
+  })
+
+  // List gem packages
+  ipcMain.handle('packages:list-gem', async (): Promise<PackageInfo[]> => {
+    try {
+      const packages = await packageManager.listGemPackages()
+      return packages
+    } catch (error) {
+      console.error('Error listing gem packages:', error)
+      sendToAllWindows('error', `Failed to list gem packages: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      return []
+    }
+  })
+
   // Uninstall a package
   ipcMain.handle('packages:uninstall', async (_event, name: string, manager: string): Promise<boolean> => {
     try {
@@ -324,6 +348,8 @@ export function cleanupIPCHandlers(): void {
   ipcMain.removeHandler('packages:list-npm')
   ipcMain.removeHandler('packages:list-pip')
   ipcMain.removeHandler('packages:list-composer')
+  ipcMain.removeHandler('packages:list-cargo')
+  ipcMain.removeHandler('packages:list-gem')
   ipcMain.removeHandler('packages:uninstall')
   ipcMain.removeHandler('services:list')
   ipcMain.removeHandler('services:kill')

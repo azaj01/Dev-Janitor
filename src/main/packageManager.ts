@@ -43,6 +43,22 @@ interface ComposerPackage {
 }
 
 /**
+ * cargo package structure (from cargo install --list)
+ */
+interface CargoPackage {
+  name: string
+  version: string
+}
+
+/**
+ * gem package structure
+ */
+interface GemPackage {
+  name: string
+  version: string
+}
+
+/**
  * Parse npm list JSON output
  * 
  * Property 6: Package List Parsing
@@ -283,6 +299,74 @@ export async function listComposerPackages(): Promise<PackageInfo[]> {
 }
 
 /**
+ * List installed cargo packages
+ * 
+ * @returns Promise resolving to array of PackageInfo
+ */
+export async function listCargoPackages(): Promise<PackageInfo[]> {
+  const result = await executeSafe('cargo install --list')
+  
+  if (!result.success || !result.stdout) {
+    return []
+  }
+  
+  const packages: PackageInfo[] = []
+  const lines = result.stdout.split('\n')
+  
+  for (const line of lines) {
+    const trimmed = line.trim()
+    if (!trimmed || trimmed.startsWith(' ')) continue
+    
+    // Format: "package-name v1.2.3:"
+    const match = trimmed.match(/^(.+?)\s+v?([\d.]+):?/)
+    if (match) {
+      packages.push({
+        name: match[1],
+        version: match[2],
+        location: 'cargo',
+        manager: 'cargo'
+      })
+    }
+  }
+  
+  return packages
+}
+
+/**
+ * List installed gem packages
+ * 
+ * @returns Promise resolving to array of PackageInfo
+ */
+export async function listGemPackages(): Promise<PackageInfo[]> {
+  const result = await executeSafe('gem list --local')
+  
+  if (!result.success || !result.stdout) {
+    return []
+  }
+  
+  const packages: PackageInfo[] = []
+  const lines = result.stdout.split('\n')
+  
+  for (const line of lines) {
+    const trimmed = line.trim()
+    if (!trimmed) continue
+    
+    // Format: "package-name (1.2.3, 1.2.2)"
+    const match = trimmed.match(/^(.+?)\s+\(([\d.]+)/)
+    if (match) {
+      packages.push({
+        name: match[1],
+        version: match[2],
+        location: 'gem',
+        manager: 'gem'
+      })
+    }
+  }
+  
+  return packages
+}
+
+/**
  * Uninstall a package using the appropriate package manager
  * 
  * @param packageName The name of the package to uninstall
@@ -291,7 +375,7 @@ export async function listComposerPackages(): Promise<PackageInfo[]> {
  */
 export async function uninstallPackage(
   packageName: string,
-  manager: 'npm' | 'pip' | 'composer'
+  manager: 'npm' | 'pip' | 'composer' | 'cargo' | 'gem'
 ): Promise<boolean> {
   let command: string
   
@@ -310,6 +394,12 @@ export async function uninstallPackage(
     case 'composer':
       command = `composer global remove ${packageName}`
       break
+    case 'cargo':
+      command = `cargo uninstall ${packageName}`
+      break
+    case 'gem':
+      command = `gem uninstall ${packageName} -x`
+      break
     default:
       return false
   }
@@ -325,7 +415,7 @@ export async function uninstallPackage(
  * @returns Promise resolving to the global path or null
  */
 export async function getGlobalPath(
-  manager: 'npm' | 'pip' | 'composer'
+  manager: 'npm' | 'pip' | 'composer' | 'cargo' | 'gem'
 ): Promise<string | null> {
   let command: string
   
@@ -348,6 +438,15 @@ export async function getGlobalPath(
     case 'composer':
       command = 'composer global config home'
       break
+    case 'cargo':
+      // Cargo installs to ~/.cargo/bin
+      command = isWindows()
+        ? 'echo %USERPROFILE%\\.cargo\\bin'
+        : 'echo ~/.cargo/bin'
+      break
+    case 'gem':
+      command = 'gem environment gemdir'
+      break
     default:
       return null
   }
@@ -368,7 +467,7 @@ export async function getGlobalPath(
  * @returns Promise resolving to true if available
  */
 export async function isPackageManagerAvailable(
-  manager: 'npm' | 'pip' | 'composer'
+  manager: 'npm' | 'pip' | 'composer' | 'cargo' | 'gem'
 ): Promise<boolean> {
   let commands: string[]
   
@@ -384,6 +483,12 @@ export async function isPackageManagerAvailable(
       break
     case 'composer':
       commands = ['composer --version']
+      break
+    case 'cargo':
+      commands = ['cargo --version']
+      break
+    case 'gem':
+      commands = ['gem --version']
       break
     default:
       return false
@@ -423,11 +528,25 @@ export class PackageManager {
   }
   
   /**
+   * List cargo packages
+   */
+  async listCargoPackages(): Promise<PackageInfo[]> {
+    return listCargoPackages()
+  }
+  
+  /**
+   * List gem packages
+   */
+  async listGemPackages(): Promise<PackageInfo[]> {
+    return listGemPackages()
+  }
+  
+  /**
    * Uninstall a package
    */
   async uninstallPackage(
     packageName: string,
-    manager: 'npm' | 'pip' | 'composer'
+    manager: 'npm' | 'pip' | 'composer' | 'cargo' | 'gem'
   ): Promise<boolean> {
     return uninstallPackage(packageName, manager)
   }
@@ -435,7 +554,7 @@ export class PackageManager {
   /**
    * Get global installation path
    */
-  async getGlobalPath(manager: 'npm' | 'pip' | 'composer'): Promise<string | null> {
+  async getGlobalPath(manager: 'npm' | 'pip' | 'composer' | 'cargo' | 'gem'): Promise<string | null> {
     return getGlobalPath(manager)
   }
   
@@ -443,7 +562,7 @@ export class PackageManager {
    * Check if package manager is available
    */
   async isPackageManagerAvailable(
-    manager: 'npm' | 'pip' | 'composer'
+    manager: 'npm' | 'pip' | 'composer' | 'cargo' | 'gem'
   ): Promise<boolean> {
     return isPackageManagerAvailable(manager)
   }

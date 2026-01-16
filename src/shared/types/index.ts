@@ -15,7 +15,7 @@ export interface PackageInfo {
   name: string              // Package name
   version: string           // Version string
   location: string          // Installation location
-  manager: 'npm' | 'pip' | 'composer'
+  manager: 'npm' | 'pip' | 'composer' | 'cargo' | 'gem'
   description?: string      // Package description
   homepage?: string         // Package homepage URL
 }
