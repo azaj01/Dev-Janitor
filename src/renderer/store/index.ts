@@ -9,7 +9,7 @@
 
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-import type { ToolInfo, PackageInfo, RunningService, EnvironmentVariable, ViewType, SupportedLanguage } from '@shared/types'
+import type { ToolInfo, PackageInfo, RunningService, EnvironmentVariable, ViewType, SupportedLanguage, ThemeMode } from '@shared/types'
 import { ipcClient } from '../ipc'
 import i18n from '../i18n'
 
@@ -44,6 +44,7 @@ interface AppState {
   // UI
   currentView: ViewType
   language: SupportedLanguage
+  themeMode: ThemeMode
   
   // Detection progress
   detectionProgress: number
@@ -64,6 +65,7 @@ interface AppState {
   // Actions - UI
   setCurrentView: (view: ViewType) => void
   setLanguage: (lang: SupportedLanguage) => void
+  setThemeMode: (mode: ThemeMode) => void
   
   // Actions - State Setters (for direct updates)
   setTools: (tools: ToolInfo[]) => void
@@ -127,6 +129,7 @@ export const useAppStore = create<AppState>()(
       // UI
       currentView: 'tools',
       language: 'en-US',
+      themeMode: 'system',
       
       // Detection progress
       detectionProgress: 0,
@@ -323,6 +326,13 @@ export const useAppStore = create<AppState>()(
           })
         }
       },
+
+      /**
+       * Set the theme mode (system/light/dark) and persist it
+       */
+      setThemeMode: (mode: ThemeMode) => {
+        set({ themeMode: mode })
+      },
       
       // ========================================================================
       // State Setters (for direct updates from IPC events)
@@ -399,6 +409,7 @@ export const useAppStore = create<AppState>()(
       partialize: (state) => ({
         language: state.language,
         currentView: state.currentView,
+        themeMode: state.themeMode,
       }),
     }
   )

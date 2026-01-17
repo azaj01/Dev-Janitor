@@ -104,6 +104,9 @@ export type IPCChannels =
 // Supported Languages
 export type SupportedLanguage = 'zh-CN' | 'en-US'
 
+// Theme Modes
+export type ThemeMode = 'system' | 'light' | 'dark'
+
 // View Types
 export type ViewType = 'tools' | 'packages' | 'services' | 'environment' | 'settings'
 
