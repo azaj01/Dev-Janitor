@@ -21,10 +21,11 @@
  * ============================================================================
  */
 
-import { useEffect, useCallback } from 'react'
-import { ConfigProvider, notification, Button, Space } from 'antd'
+import { useEffect, useCallback, useState } from 'react'
+import { ConfigProvider, notification, Button, Space, theme as antdTheme } from 'antd'
 import { ReloadOutlined } from '@ant-design/icons'
 import { AppLayout, ErrorBoundary } from './components'
+import { useAppStore } from './store'
 import './i18n'
 import type { AIConfig } from '../shared/types'
 
@@ -44,6 +45,12 @@ const DEFAULT_AI_CONFIG: AIConfig = {
 const AI_CONFIG_ERROR_NOTIFICATION_KEY = 'ai-config-load-error'
 
 function App() {
+  const { themeMode } = useAppStore()
+  const [systemPrefersDark, setSystemPrefersDark] = useState<boolean>(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return false
+    return window.matchMedia('(prefers-color-scheme: dark)').matches
+  })
+
   /**
    * Load AI configuration with error handling and fallback
    * Validates: Requirements 14.1, 14.2, 14.3, 14.4
@@ -121,7 +128,7 @@ function App() {
         description: (
           <div>
             <p style={{ marginBottom: 8 }}>{errorDescription}</p>
-            <p style={{ marginBottom: 0, color: '#666' }}>{suggestion}</p>
+            <p style={{ marginBottom: 0 }}>{suggestion}</p>
           </div>
         ),
         duration: 0, // Don't auto-close, let user decide
@@ -152,10 +159,34 @@ function App() {
     loadAIConfig()
   }, [loadAIConfig])
 
+  // Track system theme changes for "system" mode
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    const handleChange = (event: MediaQueryListEvent) => {
+      setSystemPrefersDark(event.matches)
+    }
+    mediaQuery.addEventListener('change', handleChange)
+    return () => {
+      mediaQuery.removeEventListener('change', handleChange)
+    }
+  }, [])
+
+  const isDarkMode = themeMode === 'dark' || (themeMode === 'system' && systemPrefersDark)
+
+  // Expose resolved theme to CSS for non-Antd styling (scrollbars, custom blocks, etc.)
+  useEffect(() => {
+    if (typeof document === 'undefined') return
+    const root = document.documentElement
+    root.dataset.theme = isDarkMode ? 'dark' : 'light'
+    root.style.colorScheme = isDarkMode ? 'dark' : 'light'
+  }, [isDarkMode])
+
   return (
     <ErrorBoundary>
       <ConfigProvider
         theme={{
+          algorithm: isDarkMode ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
           token: {
             colorPrimary: '#1677ff',
             borderRadius: 6,

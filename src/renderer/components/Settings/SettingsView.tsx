@@ -11,15 +11,15 @@
  */
 
 import React from 'react'
-import { Typography, Tabs, Card, Space, Divider } from 'antd'
+import { Typography, Tabs, Space, Divider } from 'antd'
 import {
   SettingOutlined,
   InfoCircleOutlined,
-  BgColorsOutlined,
   RobotOutlined,
 } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { LanguageCard } from './LanguageSelector'
+import { ThemeCard } from './ThemeSelector'
 import { AboutSection } from './AboutSection'
 import { AIConfigSection } from './AIConfigSection'
 
@@ -38,30 +38,13 @@ interface SettingsViewProps {
 // ============================================================================
 
 const GeneralSettings: React.FC = () => {
-  const { t } = useTranslation()
-
   return (
     <div className="space-y-4">
       {/* Language Settings */}
       <LanguageCard />
 
-      {/* Future: Theme Settings (placeholder) */}
-      <Card>
-        <div className="flex items-center justify-between">
-          <Space direction="vertical" size="small">
-            <Space>
-              <BgColorsOutlined className="text-purple-500 text-lg" />
-              <Title level={5} className="!mb-0">
-                {t('settings.theme')}
-              </Title>
-            </Space>
-            <Text type="secondary">{t('settings.themeDescription')}</Text>
-          </Space>
-          <Text type="secondary" className="italic">
-            Coming soon...
-          </Text>
-        </div>
-      </Card>
+      {/* Theme Settings */}
+      <ThemeCard />
     </div>
   )
 }
@@ -82,7 +65,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ className = '' }) =>
     {
       key: 'general',
       label: (
-        <Space>
+        <Space align="center">
           <SettingOutlined />
           {t('settings.general')}
         </Space>
@@ -92,7 +75,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ className = '' }) =>
     {
       key: 'ai',
       label: (
-        <Space>
+        <Space align="center">
           <RobotOutlined />
           {t('settings.aiConfig', 'AI 助手')}
         </Space>
@@ -102,7 +85,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ className = '' }) =>
     {
       key: 'about',
       label: (
-        <Space>
+        <Space align="center">
           <InfoCircleOutlined />
           {t('settings.about')}
         </Space>
@@ -117,7 +100,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ className = '' }) =>
       <div className="mb-6">
         <Space align="center" className="mb-2">
           <SettingOutlined className="text-2xl text-blue-500" />
-          <Title level={2} className="!mb-0">
+          <Title level={2} className="!m-0">
             {t('settings.title')}
           </Title>
         </Space>
