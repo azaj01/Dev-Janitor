@@ -177,6 +177,12 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({ open, onCl
   useEffect(() => {
     isMountedRef.current = true
     
+    // 防御性检查：确保 electronAPI.ai 存在
+    if (!window.electronAPI?.ai?.onStreamToken) {
+      console.warn('electronAPI.ai not available, skipping stream token listener')
+      return
+    }
+    
     const cleanup = window.electronAPI.ai.onStreamToken((token) => {
       // Don't update state if component is unmounted (Requirement 4.1)
       if (!isMountedRef.current) return
@@ -214,6 +220,10 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({ open, onCl
     
     setLoading(true)
     try {
+      // 防御性检查：确保 electronAPI.ai 存在
+      if (!window.electronAPI?.ai?.analyze) {
+        throw new Error('AI API not available')
+      }
       // Pass current language to the analyzer
       const result = await window.electronAPI.ai.analyze(i18n.language as 'en-US' | 'zh-CN')
       // Don't update state if component is unmounted (Requirement 4.1)
@@ -244,6 +254,10 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({ open, onCl
     
     setRefreshingAI(true)
     try {
+      // 防御性检查：确保 electronAPI.ai 存在
+      if (!window.electronAPI?.ai?.analyze) {
+        throw new Error('AI API not available')
+      }
       // Pass true for useCache to skip scanning
       const result = await window.electronAPI.ai.analyze(i18n.language as 'en-US' | 'zh-CN', true)
       // Don't update state if component is unmounted (Requirement 4.1)

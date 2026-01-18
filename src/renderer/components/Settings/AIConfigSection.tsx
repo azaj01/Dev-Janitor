@@ -58,6 +58,12 @@ export const AIConfigSection: React.FC = () => {
       const values = await form.validateFields(['provider', 'apiKey', 'baseUrl'].filter(f => f !== 'baseUrl' || provider === 'custom'))
 
       const config: AIConfig = { ...values, enabled: true }
+      
+      // 防御性检查：确保 electronAPI.ai 存在
+      if (!window.electronAPI?.ai) {
+        throw new Error('AI API not available')
+      }
+      
       await window.electronAPI.ai.updateConfig(config)
 
       const models = await window.electronAPI.ai.fetchModels()
@@ -86,6 +92,11 @@ export const AIConfigSection: React.FC = () => {
         message.info(t('settings.modelWarning', '提示：检测到您正在使用自定义模型，请确保模型名称已正确填写'), 5)
       }
 
+      // 防御性检查：确保 electronAPI.ai 存在
+      if (!window.electronAPI?.ai) {
+        throw new Error('AI API not available')
+      }
+
       const result = await window.electronAPI.ai.testConnection(config)
       message[result.success ? 'success' : 'error'](result.message)
     } catch (error) {
@@ -111,6 +122,11 @@ export const AIConfigSection: React.FC = () => {
 
       // Save to localStorage
       localStorage.setItem('aiConfig', JSON.stringify(config))
+
+      // 防御性检查：确保 electronAPI.ai 存在
+      if (!window.electronAPI?.ai) {
+        throw new Error('AI API not available')
+      }
 
       // Update AI assistant config via IPC
       await window.electronAPI.ai.updateConfig(config)
