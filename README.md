@@ -1,7 +1,7 @@
 # Dev Janitor
 
 <p align="center">
-  <img src="docs/hero-2.png" alt="Dev Janitor Hero" width="100%">
+  <img src="docs/hero-2.webp" alt="Dev Janitor Hero" width="100%">
 </p>
 
 <p align="center">
