@@ -5,6 +5,18 @@ All notable changes to Dev Janitor will be documented in this file.
 
 ---
 
+## [1.7.3] - 2026-01-22
+
+### Added / 新增
+- **AI Cleanup**: New feature to scan and clean junk files created by AI coding assistants (nul files, .aider session files, .claude.json.backup, etc.)
+- **AI 垃圾清理**: 新功能，扫描并清理 AI 编程助手产生的垃圾文件（nul 文件、.aider 会话文件、.claude.json.backup 等）
+
+### Changed / 变更
+- **README**: Added hero images to both English and Chinese README files
+- **README**: 中英文 README 添加了预览图
+
+---
+
 ## [1.7.2] - 2026-01-22
 
 ### Fixed / 修复
@@ -115,6 +127,7 @@ All notable changes to Dev Janitor will be documented in this file.
 
 ---
 
+[1.7.3]: https://github.com/cocojojo5213/Dev-Janitor/releases/tag/v1.7.3
 [1.7.2]: https://github.com/cocojojo5213/Dev-Janitor/releases/tag/v1.7.2
 [1.7.1]: https://github.com/cocojojo5213/Dev-Janitor/releases/tag/v1.7.1
 [1.7.0]: https://github.com/cocojojo5213/Dev-Janitor/releases/tag/v1.7.0

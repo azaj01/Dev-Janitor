@@ -20,8 +20,9 @@ import { environmentScanner } from './environmentScanner'
 import { aiAssistant } from './aiAssistant'
 import { commandExecutor } from './commandExecutor'
 import { cacheScanner } from './cacheScanner'
+import { aiCleanupScanner } from './aiCleanupScanner'
 import { commandValidator, inputValidator, validateIPCSender } from './security'
-import type { ToolInfo, PackageInfo, RunningService, EnvironmentVariable, AnalysisResult, AIConfig, AICLITool, CacheScanResult, CleanResult } from '../shared/types'
+import type { ToolInfo, PackageInfo, RunningService, EnvironmentVariable, AnalysisResult, AIConfig, AICLITool, CacheScanResult, CleanResult, AICleanupScanResult, AICleanupResult } from '../shared/types'
 
 // Store for language preference
 let currentLanguage = 'en-US'
@@ -777,6 +778,124 @@ function registerCacheHandlers(): void {
 }
 
 /**
+ * Register all IPC handlers for AI cleanup
+ * 
+ * Scans and cleans junk files created by AI coding assistants
+ */
+function registerAICleanupHandlers(): void {
+  // Scan all common directories for AI junk files
+  ipcMain.handle('ai-cleanup:scan-all', async (_event, language?: 'en-US' | 'zh-CN'): Promise<AICleanupScanResult> => {
+    try {
+      if (language) {
+        aiCleanupScanner.setLanguage(language)
+      }
+      const result = await aiCleanupScanner.scanAll()
+      return result
+    } catch (error) {
+      console.error('Error scanning for AI junk files:', error)
+      sendToAllWindows('error', `Failed to scan for AI junk files: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      return {
+        files: [],
+        totalSize: 0,
+        totalSizeFormatted: '0 B',
+        scanTime: 0,
+        scannedPaths: [],
+      }
+    }
+  })
+
+  // Scan a specific path for AI junk files
+  ipcMain.handle('ai-cleanup:scan-path', async (_event, targetPath: string, language?: 'en-US' | 'zh-CN'): Promise<AICleanupScanResult> => {
+    try {
+      if (language) {
+        aiCleanupScanner.setLanguage(language)
+      }
+      
+      // Validate path
+      const pathValidation = inputValidator.validatePath(targetPath)
+      if (!pathValidation.valid) {
+        console.warn(`Security warning: Path validation failed: ${pathValidation.error}`)
+        return {
+          files: [],
+          totalSize: 0,
+          totalSizeFormatted: '0 B',
+          scanTime: 0,
+          scannedPaths: [],
+        }
+      }
+      
+      const result = await aiCleanupScanner.scanPath(pathValidation.value!)
+      return result
+    } catch (error) {
+      console.error('Error scanning path for AI junk files:', error)
+      return {
+        files: [],
+        totalSize: 0,
+        totalSizeFormatted: '0 B',
+        scanTime: 0,
+        scannedPaths: [],
+      }
+    }
+  })
+
+  // Delete a single AI junk file
+  ipcMain.handle('ai-cleanup:delete', async (event, itemId: string): Promise<AICleanupResult> => {
+    try {
+      // Validate IPC sender
+      if (!validateIPCSender(event)) {
+        console.warn('Security warning: IPC message from untrusted sender for ai-cleanup:delete')
+        return { id: itemId, success: false, freedSpace: 0, freedSpaceFormatted: '0 B', error: 'Untrusted sender' }
+      }
+
+      // Validate item ID (base64 encoded path)
+      if (!itemId || typeof itemId !== 'string' || itemId.length > 1000) {
+        return { id: itemId, success: false, freedSpace: 0, freedSpaceFormatted: '0 B', error: 'Invalid item ID' }
+      }
+
+      const result = await aiCleanupScanner.deleteItem(itemId)
+      return result
+    } catch (error) {
+      console.error(`Error deleting AI junk file:`, error)
+      return {
+        id: itemId,
+        success: false,
+        freedSpace: 0,
+        freedSpaceFormatted: '0 B',
+        error: error instanceof Error ? error.message : 'Unknown error',
+      }
+    }
+  })
+
+  // Delete multiple AI junk files
+  ipcMain.handle('ai-cleanup:delete-multiple', async (event, itemIds: string[]): Promise<AICleanupResult[]> => {
+    try {
+      // Validate IPC sender
+      if (!validateIPCSender(event)) {
+        console.warn('Security warning: IPC message from untrusted sender for ai-cleanup:delete-multiple')
+        return itemIds.map(id => ({ id, success: false, freedSpace: 0, freedSpaceFormatted: '0 B', error: 'Untrusted sender' }))
+      }
+
+      // Validate item IDs
+      if (!Array.isArray(itemIds) || itemIds.length === 0 || itemIds.length > 100) {
+        return [{ id: 'unknown', success: false, freedSpace: 0, freedSpaceFormatted: '0 B', error: 'Invalid item IDs' }]
+      }
+
+      const results = await aiCleanupScanner.deleteMultiple(itemIds)
+      return results
+    } catch (error) {
+      console.error('Error deleting multiple AI junk files:', error)
+      return itemIds.map(id => ({
+        id,
+        success: false,
+        freedSpace: 0,
+        freedSpaceFormatted: '0 B',
+        error: error instanceof Error ? error.message : 'Unknown error',
+      }))
+    }
+  })
+}
+
+/**
  * Register all IPC handlers
  * Call this function during app initialization
  * Validates: Requirement 11.4 - Prevent duplicate registration
@@ -796,6 +915,7 @@ export function registerAllIPCHandlers(): void {
   registerAIHandlers()
   registerAICLIHandlers()
   registerCacheHandlers()
+  registerAICleanupHandlers()
   registerAppHandlers()
   registerShellHandlers()
   

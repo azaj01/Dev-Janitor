@@ -11,7 +11,7 @@
  */
 
 import { ipcRenderer, contextBridge } from 'electron'
-import type { ToolInfo, PackageInfo, RunningService, EnvironmentVariable, AnalysisResult, AIConfig, AICLITool, CacheScanResult, CleanResult } from '../shared/types'
+import type { ToolInfo, PackageInfo, RunningService, EnvironmentVariable, AnalysisResult, AIConfig, AICLITool, CacheScanResult, CleanResult, AICleanupScanResult, AICleanupResult } from '../shared/types'
 
 /**
  * Preload error logging utility
@@ -164,6 +164,14 @@ interface ElectronAPI {
     cleanMultiple: (cacheIds: string[]) => Promise<CleanResult[]>
   }
 
+  // AI Cleanup API
+  aiCleanup: {
+    scanAll: (language?: 'en-US' | 'zh-CN') => Promise<AICleanupScanResult>
+    scanPath: (targetPath: string, language?: 'en-US' | 'zh-CN') => Promise<AICleanupScanResult>
+    delete: (itemId: string) => Promise<AICleanupResult>
+    deleteMultiple: (itemIds: string[]) => Promise<AICleanupResult[]>
+  }
+
   // App/Update API
   app: {
     getVersion: () => Promise<string>
@@ -271,6 +279,13 @@ function createDegradedAPI(): ElectronAPI {
       scanAll: createDegradedPromise,
       clean: createDegradedPromise,
       cleanMultiple: createDegradedPromise,
+    },
+
+    aiCleanup: {
+      scanAll: createDegradedPromise,
+      scanPath: createDegradedPromise,
+      delete: createDegradedPromise,
+      deleteMultiple: createDegradedPromise,
     },
 
     app: {
@@ -427,6 +442,14 @@ function createElectronAPI(): ElectronAPI {
       scanAll: () => ipcRenderer.invoke('cache:scan-all'),
       clean: (cacheId: string) => ipcRenderer.invoke('cache:clean', cacheId),
       cleanMultiple: (cacheIds: string[]) => ipcRenderer.invoke('cache:clean-multiple', cacheIds),
+    },
+
+    // AI Cleanup API
+    aiCleanup: {
+      scanAll: (language?: 'en-US' | 'zh-CN') => ipcRenderer.invoke('ai-cleanup:scan-all', language),
+      scanPath: (targetPath: string, language?: 'en-US' | 'zh-CN') => ipcRenderer.invoke('ai-cleanup:scan-path', targetPath, language),
+      delete: (itemId: string) => ipcRenderer.invoke('ai-cleanup:delete', itemId),
+      deleteMultiple: (itemIds: string[]) => ipcRenderer.invoke('ai-cleanup:delete-multiple', itemIds),
     },
 
     // App/Update API

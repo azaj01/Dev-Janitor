@@ -26,6 +26,7 @@ const SettingsView = lazy(() => import('../Settings/SettingsView'))
 const AIAssistantDrawer = lazy(() => import('../AI/AIAssistantDrawer'))
 const AICLIView = lazy(() => import('../AICli/AICLIView'))
 const CacheCleanerView = lazy(() => import('../CacheCleaner/CacheCleanerView'))
+const AICleanupView = lazy(() => import('../AICleanup/AICleanupView'))
 
 const { Content } = Layout
 
@@ -87,6 +88,8 @@ const AppLayout: React.FC = () => {
         return <AICLIView />
       case 'cache-cleaner':
         return <CacheCleanerView />
+      case 'ai-cleanup':
+        return <AICleanupView />
       default:
         return <ToolsView />
     }

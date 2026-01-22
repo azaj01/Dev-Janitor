@@ -108,7 +108,7 @@ export type SupportedLanguage = 'zh-CN' | 'en-US'
 export type ThemeMode = 'system' | 'light' | 'dark'
 
 // View Types
-export type ViewType = 'tools' | 'packages' | 'services' | 'environment' | 'settings' | 'ai-cli' | 'cache-cleaner'
+export type ViewType = 'tools' | 'packages' | 'services' | 'environment' | 'settings' | 'ai-cli' | 'cache-cleaner' | 'ai-cleanup'
 
 // Cache Information Model
 export interface CacheInfo {
@@ -137,6 +137,36 @@ export interface CacheScanResult {
   totalSize: number
   totalSizeFormatted: string
   scanTime: number              // Scan duration in ms
+}
+
+// AI Cleanup Types
+export interface AIJunkFile {
+  id: string                    // Unique identifier
+  name: string                  // File/folder name
+  path: string                  // Full path
+  size: number                  // Size in bytes
+  sizeFormatted: string         // Human-readable size
+  type: 'file' | 'directory'    // Type
+  source: string                // Which AI tool likely created it
+  description: string           // Description
+  riskLevel: 'low' | 'medium'   // Risk level for deletion
+  lastModified?: Date           // Last modification time
+}
+
+export interface AICleanupResult {
+  id: string
+  success: boolean
+  freedSpace: number
+  freedSpaceFormatted: string
+  error?: string
+}
+
+export interface AICleanupScanResult {
+  files: AIJunkFile[]
+  totalSize: number
+  totalSizeFormatted: string
+  scanTime: number
+  scannedPaths: string[]
 }
 
 // AI CLI Tool Information

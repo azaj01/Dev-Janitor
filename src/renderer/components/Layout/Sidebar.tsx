@@ -23,6 +23,7 @@ import {
   RightOutlined,
   RobotOutlined,
   ClearOutlined,
+  DeleteOutlined,
 } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useAppStore } from '../../store'
@@ -77,6 +78,11 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onCollapse }) => {
       key: 'cache-cleaner' as ViewType,
       icon: <ClearOutlined />,
       label: t('nav.cacheCleaner'),
+    },
+    {
+      key: 'ai-cleanup' as ViewType,
+      icon: <DeleteOutlined />,
+      label: t('nav.aiCleanup'),
     },
     {
       key: 'settings' as ViewType,
