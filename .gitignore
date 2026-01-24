@@ -10,16 +10,7 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
-dist-electron
 *.local
-
-# Build output
-release/
-*.exe
-*.dmg
-*.AppImage
-*.deb
-*.rpm
 
 # Editor directories and files
 .vscode/*
@@ -31,13 +22,3 @@ release/
 *.njsproj
 *.sln
 *.sw?
-
-# Kiro IDE
-.kiro/
-
-# TypeScript build info
-*.tsbuildinfo
-
-# Test output
-*-test-result.json
-test-result.json
