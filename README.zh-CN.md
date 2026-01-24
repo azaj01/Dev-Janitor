@@ -54,7 +54,6 @@
   <p><em>一键扫描，秒级清理，瞬间释放 Gigabytes 空间</em></p>
 </div>
 
-*(请将您的软件截图重命名为 `screenshot_dashboard.png` 和 `screenshot_clean.png` 并放入 `dev-janitor-v2/assets/headers/` 目录下)*
 
 ## 📥 安装
 
