@@ -1,98 +1,98 @@
 {
-  "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Dev Janitor",
-  "version": "2.0.0",
-  "identifier": "dev.janitor.app",
-  "build": {
-    "beforeDevCommand": "pnpm dev",
-    "devUrl": "http://localhost:1420",
-    "beforeBuildCommand": "pnpm build",
-    "frontendDist": "../dist"
-  },
-  "app": {
-    "windows": [
-      {
-        "title": "Dev Janitor",
-        "width": 1200,
-        "height": 800,
-        "minWidth": 900,
-        "minHeight": 600,
-        "resizable": true,
-        "fullscreen": false,
-        "center": true
-      }
-    ],
-    "security": {
-      "csp": "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; script-src 'self'"
-    }
-  },
-  "bundle": {
-    "active": true,
-    "targets": [
-      "msi",
-      "nsis",
-      "dmg",
-      "app",
-      "deb",
-      "rpm",
-      "appimage"
-    ],
-    "icon": [
-      "icons/32x32.png",
-      "icons/128x128.png",
-      "icons/128x128@2x.png",
-      "icons/icon.icns",
-      "icons/icon.ico"
-    ],
-    "resources": [],
-    "category": "DeveloperTool",
-    "shortDescription": "Developer environment cleanup tool",
-    "longDescription": "Dev Janitor is a powerful tool for developers to manage and clean up their development environment. It helps you detect installed tools, manage packages, clean cache files, monitor services, and more.",
-    "copyright": "© 2025 Dev Janitor",
-    "publisher": "Dev Janitor",
-    "windows": {
-      "wix": {
-        "language": [
-          "en-US",
-          "ja-JP",
-          "zh-CN"
-        ]
-      },
-      "nsis": {
-        "installerIcon": "icons/icon.ico",
-        "languages": [
-          "English",
-          "Japanese",
-          "SimpChinese"
-        ]
-      }
+    "$schema": "https://schema.tauri.app/config/2",
+    "productName": "Dev Janitor",
+    "version": "2.0.0",
+    "identifier": "dev.janitor.app",
+    "build": {
+        "beforeDevCommand": "pnpm dev",
+        "devUrl": "http://localhost:1420",
+        "beforeBuildCommand": "pnpm build",
+        "frontendDist": "../dist"
     },
-    "macOS": {
-      "minimumSystemVersion": "10.15"
+    "app": {
+        "windows": [
+            {
+                "title": "Dev Janitor",
+                "width": 1200,
+                "height": 800,
+                "minWidth": 900,
+                "minHeight": 600,
+                "resizable": true,
+                "fullscreen": false,
+                "center": true
+            }
+        ],
+        "security": {
+            "csp": "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; script-src 'self'"
+        }
     },
-    "linux": {
-      "appimage": {
-        "bundleMediaFramework": false
-      },
-      "deb": {
-        "depends": [
-          "libwebkit2gtk-4.1-0",
-          "libgtk-3-0"
-        ]
-      }
+    "bundle": {
+        "active": true,
+        "targets": [
+            "msi",
+            "nsis",
+            "dmg",
+            "app",
+            "deb",
+            "rpm",
+            "appimage"
+        ],
+        "icon": [
+            "icons/32x32.png",
+            "icons/128x128.png",
+            "icons/128x128@2x.png",
+            "icons/icon.icns",
+            "icons/icon.ico"
+        ],
+        "resources": [],
+        "category": "DeveloperTool",
+        "shortDescription": "Developer environment cleanup tool",
+        "longDescription": "Dev Janitor is a powerful tool for developers to manage and clean up their development environment. It helps you detect installed tools, manage packages, clean cache files, monitor services, and more.",
+        "copyright": "© 2025 Dev Janitor",
+        "publisher": "Dev Janitor",
+        "windows": {
+            "wix": {
+                "language": [
+                    "en-US",
+                    "ja-JP",
+                    "zh-CN"
+                ]
+            },
+            "nsis": {
+                "installerIcon": "icons/icon.ico",
+                "languages": [
+                    "English",
+                    "Japanese",
+                    "SimpChinese"
+                ]
+            }
+        },
+        "macOS": {
+            "minimumSystemVersion": "10.15"
+        },
+        "linux": {
+            "appimage": {
+                "bundleMediaFramework": false
+            },
+            "deb": {
+                "depends": [
+                    "libwebkit2gtk-4.1-0",
+                    "libgtk-3-0"
+                ]
+            }
+        }
+    },
+    "plugins": {
+        "updater": {
+            "active": true,
+            "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDJGRENFQUI5OEE1QjZGQ0YKUldUUGIxdUt1ZXJjTDNkcFFYRUlrbXp1RFVjZGkxTk8veExzT09sMEIzQS94aDhLQmtNTEJxdzUK",
+            "endpoints": [
+                "https://github.com/cocojojo5213/dev-janitor/releases/latest/download/latest.json"
+            ],
+            "dialog": true,
+            "windows": {
+                "installMode": "passive"
+            }
+        }
     }
-  },
-  "plugins": {
-    "updater": {
-      "active": true,
-      "pubkey": "YOUR_PUBLIC_KEY_HERE",
-      "endpoints": [
-        "https://github.com/cocojojo5213/dev-janitor/releases/latest/download/latest.json"
-      ],
-      "dialog": true,
-      "windows": {
-        "installMode": "passive"
-      }
-    }
-  }
 }
