@@ -381,6 +381,7 @@ pub fn delete_ai_junk(path: &str) -> Result<String, String> {
 }
 
 #[cfg(target_os = "windows")]
+#[allow(clippy::permissions_set_readonly_false)]
 fn fix_permissions_and_delete(path: &PathBuf) -> std::io::Result<()> {
     use std::os::windows::fs::MetadataExt;
 

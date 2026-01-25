@@ -120,7 +120,69 @@ pub fn get_ai_cli_tools() -> Vec<AiCliTool> {
     ]
 }
 
-/// Find config files for an AI CLI tool
+/// Configuration discovery patterns for AI CLI tools
+/// Uses dynamic scanning instead of hardcoded file names to adapt to frequent config format changes
+struct ConfigDiscovery {
+    /// Directories to scan for config files (relative to home)
+    directories: Vec<&'static str>,
+    /// Single files to check (relative to home) - for tools using dotfiles
+    single_files: Vec<&'static str>,
+    /// File extensions to consider as config files when scanning directories
+    config_extensions: Vec<&'static str>,
+}
+
+impl ConfigDiscovery {
+    fn for_tool(tool_id: &str) -> Self {
+        match tool_id {
+            "claude" => ConfigDiscovery {
+                directories: vec![".claude"],
+                single_files: vec![".claude.json"],
+                config_extensions: vec!["json", "toml", "yaml", "yml"],
+            },
+            "codex" => ConfigDiscovery {
+                directories: vec![".codex"],
+                single_files: vec![".codexrc"],
+                config_extensions: vec!["json", "toml", "yaml", "yml"],
+            },
+            "gemini" => ConfigDiscovery {
+                directories: vec![".gemini"],
+                single_files: vec![".geminirc"],
+                config_extensions: vec!["json", "toml", "yaml", "yml"],
+            },
+            "aider" => ConfigDiscovery {
+                directories: vec![".aider"],
+                single_files: vec![
+                    ".aider.conf.yml",
+                    ".aider.model.settings.yml",
+                    ".aider.model.metadata.json",
+                ],
+                config_extensions: vec!["json", "toml", "yaml", "yml"],
+            },
+            "continue" => ConfigDiscovery {
+                directories: vec![".continue"],
+                single_files: vec![],
+                config_extensions: vec!["json", "yaml", "yml"],
+            },
+            "cody" => ConfigDiscovery {
+                directories: vec![".sourcegraph"],
+                single_files: vec![],
+                config_extensions: vec!["json"],
+            },
+            "cursor" => ConfigDiscovery {
+                directories: vec![".cursor"],
+                single_files: vec![".cursorignore", ".cursorrules"],
+                config_extensions: vec!["json", "yaml", "yml"],
+            },
+            _ => ConfigDiscovery {
+                directories: vec![],
+                single_files: vec![],
+                config_extensions: vec![],
+            },
+        }
+    }
+}
+
+/// Find config files for an AI CLI tool using dynamic scanning
 fn find_config_files(tool_id: &str) -> Vec<AiConfigFile> {
     let home = env::var("HOME")
         .or_else(|_| env::var("USERPROFILE"))
@@ -128,80 +190,97 @@ fn find_config_files(tool_id: &str) -> Vec<AiConfigFile> {
     let app_data = env::var("APPDATA").unwrap_or_default();
     let local_app_data = env::var("LOCALAPPDATA").unwrap_or_default();
 
-    let config_patterns: Vec<(&str, &str)> = match tool_id {
-        "claude" => vec![
-            (".claude.json", "Claude Config"),
-            (".claude", "Claude Directory"),
-            ("claude/config.json", "Claude Settings"),
-        ],
-        "codex" => vec![
-            (".codex/config.json", "Codex Config"),
-            (".codexrc", "Codex RC"),
-        ],
-        "gemini" => vec![
-            (".gemini/config.json", "Gemini Config"),
-            (".geminirc", "Gemini RC"),
-        ],
-        "aider" => vec![
-            (".aider.conf.yml", "Aider Config"),
-            (".aider.model.settings.yml", "Aider Model Settings"),
-            (".aider.model.metadata.json", "Aider Model Metadata"),
-        ],
-        "continue" => vec![
-            (".continue/config.json", "Continue Config"),
-            (".continue/config.yaml", "Continue Config YAML"),
-        ],
-        "cody" => vec![
-            (".sourcegraph/cody.json", "Cody Config"),
-            ("sourcegraph-cody/config.json", "Cody Settings"),
-        ],
-        "cursor" => vec![
-            (".cursor/settings.json", "Cursor Settings"),
-            (".cursorignore", "Cursor Ignore"),
-            (".cursorrules", "Cursor Rules"),
-        ],
-        _ => vec![],
-    };
-
+    let discovery = ConfigDiscovery::for_tool(tool_id);
     let mut configs = Vec::new();
+    let mut seen_paths = std::collections::HashSet::new();
 
-    for (pattern, name) in config_patterns {
-        // Check in home directory
-        let home_path = PathBuf::from(&home).join(pattern);
-        if home_path.exists() || pattern.starts_with('.') {
-            configs.push(AiConfigFile {
-                name: name.to_string(),
-                path: home_path.to_string_lossy().to_string(),
-                exists: home_path.exists(),
-            });
+    let base_dirs = [
+        (&home, ""),
+        (&app_data, " (AppData)"),
+        (&local_app_data, " (Local)"),
+    ];
+
+    for (base, suffix) in &base_dirs {
+        if base.is_empty() {
+            continue;
         }
 
-        // Check in AppData (Windows)
-        if !app_data.is_empty() {
-            let app_path = PathBuf::from(&app_data).join(pattern);
-            if app_path.exists() {
-                configs.push(AiConfigFile {
-                    name: format!("{} (AppData)", name),
-                    path: app_path.to_string_lossy().to_string(),
-                    exists: true,
-                });
+        // Scan directories for config files
+        for dir_name in &discovery.directories {
+            let dir_path = PathBuf::from(base).join(dir_name);
+            if dir_path.is_dir() {
+                // Add the directory itself
+                let dir_str = dir_path.to_string_lossy().to_string();
+                if seen_paths.insert(dir_str.clone()) {
+                    configs.push(AiConfigFile {
+                        name: format!("{} Directory{}", capitalize_tool_id(tool_id), suffix),
+                        path: dir_str,
+                        exists: true,
+                    });
+                }
+
+                // Scan for config files in the directory (non-recursive, only top-level)
+                if let Ok(entries) = std::fs::read_dir(&dir_path) {
+                    for entry in entries.filter_map(|e| e.ok()) {
+                        let path = entry.path();
+                        if path.is_file() {
+                            let file_name = path.file_name().unwrap_or_default().to_string_lossy();
+                            let ext = path.extension().unwrap_or_default().to_string_lossy();
+
+                            // Check if it's a config file by extension
+                            let is_config = discovery.config_extensions.iter().any(|e| *e == ext)
+                                || file_name.ends_with("rc")
+                                || file_name.starts_with("config")
+                                || file_name.starts_with("settings")
+                                || file_name.ends_with(".conf");
+
+                            if is_config {
+                                let path_str = path.to_string_lossy().to_string();
+                                if seen_paths.insert(path_str.clone()) {
+                                    configs.push(AiConfigFile {
+                                        name: format!("{}{}", file_name, suffix),
+                                        path: path_str,
+                                        exists: true,
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 
-        // Check in LocalAppData (Windows)
-        if !local_app_data.is_empty() {
-            let local_path = PathBuf::from(&local_app_data).join(pattern);
-            if local_path.exists() {
+        // Check single files
+        for file_name in &discovery.single_files {
+            let file_path = PathBuf::from(base).join(file_name);
+            let path_str = file_path.to_string_lossy().to_string();
+            if seen_paths.insert(path_str.clone()) {
                 configs.push(AiConfigFile {
-                    name: format!("{} (Local)", name),
-                    path: local_path.to_string_lossy().to_string(),
-                    exists: true,
+                    name: format!("{}{}", file_name, suffix),
+                    path: path_str.clone(),
+                    exists: file_path.exists(),
                 });
             }
         }
     }
 
+    // Sort: existing files first, then by name
+    configs.sort_by(|a, b| match (a.exists, b.exists) {
+        (true, false) => std::cmp::Ordering::Less,
+        (false, true) => std::cmp::Ordering::Greater,
+        _ => a.name.cmp(&b.name),
+    });
+
     configs
+}
+
+/// Capitalize tool ID for display
+fn capitalize_tool_id(tool_id: &str) -> String {
+    let mut chars = tool_id.chars();
+    match chars.next() {
+        None => String::new(),
+        Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
+    }
 }
 
 /// Check if a tool is installed and get its version

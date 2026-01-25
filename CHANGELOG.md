@@ -5,7 +5,21 @@ All notable changes to Dev Janitor will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.4] - 2026-01-25
+
+### 优化
+- **AI CLI 配置文件动态扫描**: 重构配置文件发现逻辑，改为动态扫描目录而非硬编码文件路径
+  - 自动发现目录下的所有配置文件（config.toml, settings.json 等）
+  - 当 AI CLI 工具更新配置格式时（如 Codex 从 config.json 改为 config.toml）无需更新代码
+  - 存在的文件优先排序显示
+  - 避免重复显示相同路径
+
+### 修复
+- 修复 Codex 配置文件名错误（原硬编码为 .codex/config.json，实际应为 config.toml）
+- 修复 Claude Code 和 Gemini CLI 配置文件名（实际为 settings.json）
+
 ## [2.0.3] - 2026-01-25
+
 
 ### 新增
 - 所有视图的扫描结果在切换页面后保持不变（Tools、Cache、Services、AI CLI）
