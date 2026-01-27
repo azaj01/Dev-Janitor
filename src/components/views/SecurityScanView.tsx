@@ -101,6 +101,12 @@ export function SecurityScanView() {
         Low: '🔵',
     };
 
+    // Translate risk level from backend (English) to current locale
+    const translateRiskLevel = (level: string): string => {
+        const key = level.toLowerCase() as 'critical' | 'high' | 'medium' | 'low';
+        return t(`security.risk_levels.${key}`);
+    };
+
     const filteredFindings = scanResult?.findings.filter(
         (f) => filterRisk === 'all' || f.risk_level === filterRisk
     ) || [];
@@ -195,25 +201,25 @@ export function SecurityScanView() {
                                 <span className="summary-count" style={{ color: riskColors.Critical }}>
                                     {scanResult.summary.critical}
                                 </span>
-                                <span className="summary-label">Critical</span>
+                                <span className="summary-label">{t('security.risk_levels.critical')}</span>
                             </div>
                             <div className="summary-card" style={{ borderColor: riskColors.High }}>
                                 <span className="summary-count" style={{ color: riskColors.High }}>
                                     {scanResult.summary.high}
                                 </span>
-                                <span className="summary-label">High</span>
+                                <span className="summary-label">{t('security.risk_levels.high')}</span>
                             </div>
                             <div className="summary-card" style={{ borderColor: riskColors.Medium }}>
                                 <span className="summary-count" style={{ color: riskColors.Medium }}>
                                     {scanResult.summary.medium}
                                 </span>
-                                <span className="summary-label">Medium</span>
+                                <span className="summary-label">{t('security.risk_levels.medium')}</span>
                             </div>
                             <div className="summary-card" style={{ borderColor: riskColors.Low }}>
                                 <span className="summary-count" style={{ color: riskColors.Low }}>
                                     {scanResult.summary.low}
                                 </span>
-                                <span className="summary-label">Low</span>
+                                <span className="summary-label">{t('security.risk_levels.low')}</span>
                             </div>
                         </div>
                     )}
@@ -238,7 +244,7 @@ export function SecurityScanView() {
                                 >
                                     <div className="finding-header">
                                         <span className="risk-badge" style={{ backgroundColor: riskColors[finding.risk_level] }}>
-                                            {riskEmojis[finding.risk_level]} {finding.risk_level}
+                                            {riskEmojis[finding.risk_level]} {translateRiskLevel(finding.risk_level)}
                                         </span>
                                         <span className="tool-name">{finding.tool_name}</span>
                                     </div>
