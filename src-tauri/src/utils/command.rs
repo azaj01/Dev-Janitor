@@ -89,9 +89,11 @@ fn spawn_command(program: &str, args: &[&str]) -> io::Result<Child> {
     #[cfg(target_os = "windows")]
     {
         if should_use_cmd_wrapper(program) {
+            use std::os::windows::process::CommandExt;
+
             return command_no_window("cmd")
                 .args(["/D", "/S", "/C"])
-                .arg(format_cmd_command_line(program, args))
+                .raw_arg(format_cmd_command_line(program, args))
                 .stdin(Stdio::null())
                 .stdout(Stdio::piped())
                 .stderr(Stdio::piped())
